@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xmlns:h="http://xmlns.jcp.org/jsf/html">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Table with User Input</title>
+  <style type="text/css">
+    /* CSS styling remains unchanged */
+  </style>
+</head>
+<body>
+
+  <h2>Table with User Input</h2>
+
+  <h:form id="dataForm">
+    <table>
+      <thead>
+        <tr>
+          <th>Column 1</th>
+          <th>Column 2</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="dataBody">
+        <h:dataTable value="#{personBean.personList}" var="person" id="dataTable">
+          <h:column>
+            <select name="cell_1_1" disabled="#{personBean.rowDisabled}">
+              <f:selectItems value="#{personBean.options}" />
+              <f:selectItem itemValue="#{person.name}" />
+            </select>
+          </h:column>
+          <h:column>
+            <h:inputText value="#{person.age}" disabled="#{personBean.rowDisabled}" />
+          </h:column>
+          <h:column>
+            <button type="button" class="fancy-button" onclick="#{personBean.saveRow(person)}" disabled="#{personBean.rowDisabled}">Save</button>
+            <button type="button" class="fancy-button edit" onclick="#{personBean.editRow}" disabled="#{!personBean.rowDisabled}">Edit</button>
+          </h:column>
+        </h:dataTable>
+      </tbody>
+    </table>
+
+    <br />
+    <button type="button" onclick="addRows()">Add New Rows</button>
+    <h:commandButton value="Submit" action="#{personBean.submit}" />
+  </h:form>
+
+  <script type="text/javascript">
+    // JavaScript functions remain unchanged
+  </script>
+
+</body>
+</html>
