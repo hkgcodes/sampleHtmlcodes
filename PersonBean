@@ -1,0 +1,49 @@
+import javax.annotation.PostConstruct;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+@ManagedBean
+@ViewScoped
+public class PersonBean implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private List<PersonDTO> personList;
+    private boolean isRowDisabled;
+
+    @PostConstruct
+    public void init() {
+        // Hardcoding two records for demonstration
+        personList = new ArrayList<>();
+        personList.add(new PersonDTO(1, "John", 25));
+        personList.add(new PersonDTO(2, "Jane", 30));
+    }
+
+    public List<PersonDTO> getPersonList() {
+        return personList;
+    }
+
+    public boolean isRowDisabled() {
+        return isRowDisabled;
+    }
+
+    public void setRowDisabled(boolean isRowDisabled) {
+        this.isRowDisabled = isRowDisabled;
+    }
+
+    public void saveRow(PersonDTO person) {
+        // Implement save logic here
+        setRowDisabled(true);
+    }
+
+    public void editRow() {
+        // Implement edit logic here
+        setRowDisabled(false);
+    }
+
+    public void submit() {
+        // Implement submit logic here
+    }
+}
