@@ -60,10 +60,11 @@
                 <h:column>
                     <h:outputText value="#{person.age}" />
                 </h:column>
-                <h:column>
-                    <h:commandButton value="Save" action="#{personBean.saveRow(person)}" disabled="#{personBean.rowDisabled}" />
-                    <h:commandButton value="Edit" action="#{personBean.editRow}" disabled="#{!personBean.rowDisabled}" />
-                </h:column>
+              <h:column>
+    <h:commandButton value="Save" action="#{personBean.saveRow(person)}" disabled="#{personBean.rowDisabled}" styleClass="fancy-button" />
+    <h:commandButton value="Edit" action="#{personBean.editRow}" disabled="#{!personBean.rowDisabled}" styleClass="fancy-button edit" />
+</h:column>
+
             </h:dataTable>
         </tbody>
     </table>
@@ -75,7 +76,7 @@
 
 <script type="text/javascript">
     // <![CDATA[
-     function addRows() {
+    function addRows() {
         var tableBody = document.getElementById("dataBody");
 
         // Limit to creating 3 new rows
@@ -102,8 +103,12 @@
             editButton.textContent = "Edit";
             editButton.onclick = function () { editRow(this); };
             actionCell.appendChild(editButton);
+
+            // Append the new row at the end of the table body
+            tableBody.appendChild(newRow);
         }
     }
+
     
 function saveRow(button) {
         var row = button.parentNode.parentNode;
