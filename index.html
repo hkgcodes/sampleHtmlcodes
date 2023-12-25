@@ -1,146 +1,128 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xmlns:h="http://xmlns.jcp.org/jsf/html">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Table with User Input</title>
-  <style type="text/css">
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Table with User Input</title>
+    <style type="text/css">
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
 
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: center;
-    }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
 
-    th {
-      background-color: #f2f2f2;
-    }
+        th {
+            background-color: #f2f2f2;
+        }
 
-    .fancy-button {
-      background-color: #4CAF50;
-      color: white;
-      padding: 8px 16px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
+        .fancy-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
 
-    .fancy-button.edit {
-      background-color: #2196F3;
-    }
+        .fancy-button.edit {
+            background-color: #2196F3;
+        }
 
-    .greyed-out {
-      background-color: #f0f0f0;
-    }
-  </style>
+        .greyed-out {
+            background-color: #f0f0f0;
+        }
+    </style>
 </head>
 <body>
 
-  <h2>Table with User Input</h2>
+<h2>Table with User Input</h2>
 
-  <h:form id="dataForm">
+<h:form id="dataForm">
     <table>
-      <thead>
-        <tr>
-          <th>Column 1</th>
-          <th>Column 2</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="dataBody">
-        <h:dataTable value="#{personBean.personList}" var="person" id="dataTable">
-          <h:column>
-            <select name="cell_1_1" disabled="#{personBean.rowDisabled}">
-              <f:selectItems value="#{personBean.options}" />
-              <f:selectItem itemValue="#{person.name}" />
-            </select>
-          </h:column>
-          <h:column>
-            <h:inputText value="#{person.age}" disabled="#{personBean.rowDisabled}" />
-          </h:column>
-          <h:column>
-            <button type="button" class="fancy-button" onclick="#{personBean.saveRow(person)}" disabled="#{personBean.rowDisabled}">Save</button>
-            <h:commandButton value="Edit" action="#{personBean.editRow}" disabled="#{!personBean.rowDisabled}" />
-
-          </h:column>
-        </h:dataTable>
-      </tbody>
+        <thead>
+            <tr>
+                <th>Column 1</th>
+                <th>Column 2</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="dataBody">
+            <h:dataTable value="#{personBean.personList}" var="person" id="dataTable">
+                <h:column>
+                    <h:outputText value="#{person.name}" />
+                </h:column>
+                <h:column>
+                    <h:outputText value="#{person.age}" />
+                </h:column>
+                <h:column>
+                    <h:commandButton value="Save" action="#{personBean.saveRow(person)}" disabled="#{personBean.rowDisabled}" />
+                    <h:commandButton value="Edit" action="#{personBean.editRow}" disabled="#{!personBean.rowDisabled}" />
+                </h:column>
+            </h:dataTable>
+        </tbody>
     </table>
 
     <br />
     <button type="button" onclick="addRows()">Add New Rows</button>
     <h:commandButton value="Submit" action="#{personBean.submit}" />
-  </h:form>
+</h:form>
 
-  <script type="text/javascript">
+<script type="text/javascript">
     // <![CDATA[
     function addRows() {
-      var tableBody = document.getElementById("dataBody");
-      for (var i = 0; i < 5; i++) {
-        var newRow = tableBody.insertRow(tableBody.rows.length);
-        for (var j = 0; j < 9; j++) {
-          var cell = newRow.insertCell(j);
-          if (j === 0) {
-            var select = document.createElement("select");
-            select.name = "cell_" + (tableBody.rows.length) + "_1";
-            var options = ["AV", "AB", "AH"];
-            for (var k = 0; k < options.length; k++) {
-              var option = document.createElement("option");
-              option.value = options[k];
-              option.text = options[k];
-              select.appendChild(option);
+        var tableBody = document.getElementById("dataBody");
+        for (var i = 0; i < 5; i++) {
+            var newRow = tableBody.insertRow(tableBody.rows.length);
+            for (var j = 0; j < 2; j++) {
+                var cell = newRow.insertCell(j);
+                var input = document.createElement("input");
+                input.type = "text";
+                input.name = "cell_" + (tableBody.rows.length) + "_" + (j + 1);
+                cell.appendChild(input);
             }
-            cell.appendChild(select);
-          } else {
-            var input = document.createElement("input");
-            input.type = "text";
-            input.name = "cell_" + (tableBody.rows.length) + "_" + (j + 1);
-            cell.appendChild(input);
-          }
-        }
-        var actionCell = newRow.insertCell(9);
-        var saveButton = document.createElement("button");
-        saveButton.type = "button";
-        saveButton.className = "fancy-button";
-        saveButton.textContent = "Save";
-        saveButton.onclick = function() { saveRow(this); };
-        actionCell.appendChild(saveButton);
+            var actionCell = newRow.insertCell(2);
+            var saveButton = document.createElement("button");
+            saveButton.type = "button";
+            saveButton.className = "fancy-button";
+            saveButton.textContent = "Save";
+            saveButton.onclick = function () { saveRow(this); };
+            actionCell.appendChild(saveButton);
 
-        var editButton = document.createElement("button");
-        editButton.type = "button";
-        editButton.className = "fancy-button edit";
-        editButton.textContent = "Edit";
-        editButton.onclick = function() { editRow(this); };
-        actionCell.appendChild(editButton);
-      }
+            var editButton = document.createElement("button");
+            editButton.type = "button";
+            editButton.className = "fancy-button edit";
+            editButton.textContent = "Edit";
+            editButton.onclick = function () { editRow(this); };
+            actionCell.appendChild(editButton);
+        }
     }
 
     function saveRow(button) {
-      var row = button.parentNode.parentNode;
-      row.classList.add("greyed-out");
-      disableInputs(row, true);
+        var row = button.parentNode.parentNode;
+        row.classList.add("greyed-out");
+        disableInputs(row, true);
     }
 
     function editRow(button) {
-      var row = button.parentNode.parentNode;
-      row.classList.remove("greyed-out");
-      disableInputs(row, false);
+        var row = button.parentNode.parentNode;
+        row.classList.remove("greyed-out");
+        disableInputs(row, false);
     }
 
     function disableInputs(row, disable) {
-      var inputs = row.querySelectorAll("input, select");
-      for (var i = 0; i < inputs.length; i++) {
-        inputs[i].readOnly = disable;
-      }
+        var inputs = row.querySelectorAll("input");
+        for (var i = 0; i < inputs.length; i++) {
+            inputs[i].readOnly = disable;
+        }
     }
     // ]]>
-  </script>
+</script>
 
 </body>
 </html>
