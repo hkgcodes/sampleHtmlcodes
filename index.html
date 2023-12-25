@@ -76,24 +76,30 @@
 
 <script type="text/javascript">
     // <![CDATA[
-    function addRows() {
+     function addRows() {
         var tableBody = document.getElementById("dataBody");
+
+        // Calculate the number of existing rows
+        var existingRowCount = tableBody.getElementsByTagName("tr").length;
 
         // Limit to creating 3 new rows
         for (var i = 0; i < 3; i++) {
-            var newRow = tableBody.insertRow(-1); // -1 appends the row at the end
+            var newRow = tableBody.insertRow(existingRowCount + i);
             for (var j = 0; j < 2; j++) {
                 var cell = newRow.insertCell(j);
                 var input = document.createElement("input");
                 input.type = "text";
-                input.name = "cell_" + (tableBody.rows.length) + "_" + (j + 1);
+                input.name = "cell_" + (existingRowCount + i + 1) + "_" + (j + 1);
                 cell.appendChild(input);
             }
             var actionCell = newRow.insertCell(2);
+
+            // Initialize the buttons' disabled states based on whether it's an existing record
             var saveButton = document.createElement("button");
             saveButton.type = "button";
             saveButton.className = "fancy-button save";
             saveButton.textContent = "Save";
+            saveButton.disabled = true; // Save button is disabled by default
             saveButton.onclick = function () { saveRow(this); };
             actionCell.appendChild(saveButton);
 
@@ -101,12 +107,22 @@
             editButton.type = "button";
             editButton.className = "fancy-button edit";
             editButton.textContent = "Edit";
+            editButton.disabled = false; // Edit button is enabled by default
             editButton.onclick = function () { editRow(this); };
             actionCell.appendChild(editButton);
-
-            // Append the new row at the end of the table body
-            tableBody.appendChild(newRow);
         }
+    }
+
+    function editRow(button) {
+        var row = button.parentNode.parentNode;
+        row.classList.remove("greyed-out");
+        disableInputs(row, false);
+
+        // Disable the "Edit" button
+        button.disabled = true;
+
+        // Enable the "Save" button
+        row.querySelector('.fancy-button.save').disabled = false;
     }
 
     
@@ -120,15 +136,7 @@ function saveRow(button) {
         button.disabled = true;
     }
 
-    function editRow(button) {
-        var row = button.parentNode.parentNode;
-        row.classList.remove("greyed-out");
-        disableInputs(row, false);
-        // Disable the "Edit" button
-        button.disabled = true;
-        // Enable the "Save" button
-        row.querySelector('.fancy-button.save').disabled = false;
-    }
+  
 
     function disableInputs(row, disable) {
         var inputs = row.querySelectorAll("input");
