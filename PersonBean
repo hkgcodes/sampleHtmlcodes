@@ -19,6 +19,10 @@ public class PersonBean implements Serializable {
         personList = new ArrayList<>();
         personList.add(new PersonDTO(1, "John", 25));
         personList.add(new PersonDTO(2, "Jane", 30));
+
+for (PersonDTO person : personList) {
+            person.setRowDisabled(true);
+        }
     }
 
     public List<PersonDTO> getPersonList() {
