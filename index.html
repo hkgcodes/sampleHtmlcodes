@@ -103,16 +103,20 @@
         }
     }
 
-    function saveRow(button) {
+   function saveRow(button) {
         var row = button.parentNode.parentNode;
         row.classList.add("greyed-out");
         disableInputs(row, true);
+        // Enable the "Edit" button
+        row.querySelector('.fancy-button.edit').disabled = false;
     }
 
     function editRow(button) {
         var row = button.parentNode.parentNode;
         row.classList.remove("greyed-out");
         disableInputs(row, false);
+        // Disable the "Edit" button
+        row.querySelector('.fancy-button.edit').disabled = true;
     }
 
     function disableInputs(row, disable) {
