@@ -6,6 +6,7 @@ public class PersonDTO implements Serializable {
     private int id;
     private String name;
     private int age;
+    private boolean rowDisabled; // Added property
 
     public PersonDTO() {
         // Default constructor
@@ -15,6 +16,7 @@ public class PersonDTO implements Serializable {
         this.id = id;
         this.name = name;
         this.age = age;
+        this.rowDisabled = false; // Initialize to false by default
     }
 
     // Getters and setters
@@ -41,5 +43,13 @@ public class PersonDTO implements Serializable {
 
     public void setAge(int age) {
         this.age = age;
+    }
+
+    public boolean isRowDisabled() {
+        return rowDisabled;
+    }
+
+    public void setRowDisabled(boolean rowDisabled) {
+        this.rowDisabled = rowDisabled;
     }
 }
