@@ -60,9 +60,11 @@
                 <h:column>
                     <h:outputText value="#{person.age}" />
                 </h:column>
-              <h:column>
-    <h:commandButton value="Save" action="#{personBean.saveRow(person)}" disabled="#{personBean.rowDisabled}" styleClass="fancy-button" />
-    <h:commandButton value="Edit" action="#{personBean.editRow}" disabled="#{!personBean.rowDisabled}" styleClass="fancy-button edit" />
+        
+
+        <h:column>
+    <h:commandButton value="Save" action="#{personBean.saveRow(person)}" disabled="#{person.rowDisabled}" styleClass="fancy-button" />
+    <h:commandButton value="Edit" action="#{personBean.editRow(person)}" disabled="#{!person.rowDisabled}" styleClass="fancy-button edit" />
 </h:column>
 
             </h:dataTable>
