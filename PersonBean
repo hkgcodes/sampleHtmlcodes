@@ -11,7 +11,7 @@ public class PersonBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private List<PersonDTO> personList;
-    private boolean isRowDisabled;
+    private boolean rowDisabled; // Corrected property name
 
     @PostConstruct
     public void init() {
@@ -25,12 +25,12 @@ public class PersonBean implements Serializable {
         return personList;
     }
 
-    public boolean isRowDisabled() {
-        return isRowDisabled;
+    public boolean isRowDisabled() { // Corrected getter name
+        return rowDisabled;
     }
 
-    public void setRowDisabled(boolean isRowDisabled) {
-        this.isRowDisabled = isRowDisabled;
+    public void setRowDisabled(boolean rowDisabled) { // Corrected setter name
+        this.rowDisabled = rowDisabled;
     }
 
     public void saveRow(PersonDTO person) {
