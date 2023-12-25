@@ -66,7 +66,8 @@
           </h:column>
           <h:column>
             <button type="button" class="fancy-button" onclick="#{personBean.saveRow(person)}" disabled="#{personBean.rowDisabled}">Save</button>
-            <button type="button" class="fancy-button edit" onclick="#{personBean.editRow}" disabled="#{!personBean.rowDisabled}">Edit</button>
+            <h:commandButton value="Edit" action="#{personBean.editRow}" disabled="#{!personBean.rowDisabled}" />
+
           </h:column>
         </h:dataTable>
       </tbody>
