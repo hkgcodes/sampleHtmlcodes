@@ -7,7 +7,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Table with User Input</title>
   <style type="text/css">
-    /* CSS styling remains unchanged */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .fancy-button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .fancy-button.edit {
+      background-color: #2196F3;
+    }
+
+    .greyed-out {
+      background-color: #f0f0f0;
+    }
   </style>
 </head>
 <body>
@@ -48,7 +78,67 @@
   </h:form>
 
   <script type="text/javascript">
-    // JavaScript functions remain unchanged
+    // <![CDATA[
+    function addRows() {
+      var tableBody = document.getElementById("dataBody");
+      for (var i = 0; i < 5; i++) {
+        var newRow = tableBody.insertRow(tableBody.rows.length);
+        for (var j = 0; j < 9; j++) {
+          var cell = newRow.insertCell(j);
+          if (j === 0) {
+            var select = document.createElement("select");
+            select.name = "cell_" + (tableBody.rows.length) + "_1";
+            var options = ["AV", "AB", "AH"];
+            for (var k = 0; k < options.length; k++) {
+              var option = document.createElement("option");
+              option.value = options[k];
+              option.text = options[k];
+              select.appendChild(option);
+            }
+            cell.appendChild(select);
+          } else {
+            var input = document.createElement("input");
+            input.type = "text";
+            input.name = "cell_" + (tableBody.rows.length) + "_" + (j + 1);
+            cell.appendChild(input);
+          }
+        }
+        var actionCell = newRow.insertCell(9);
+        var saveButton = document.createElement("button");
+        saveButton.type = "button";
+        saveButton.className = "fancy-button";
+        saveButton.textContent = "Save";
+        saveButton.onclick = function() { saveRow(this); };
+        actionCell.appendChild(saveButton);
+
+        var editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.className = "fancy-button edit";
+        editButton.textContent = "Edit";
+        editButton.onclick = function() { editRow(this); };
+        actionCell.appendChild(editButton);
+      }
+    }
+
+    function saveRow(button) {
+      var row = button.parentNode.parentNode;
+      row.classList.add("greyed-out");
+      disableInputs(row, true);
+    }
+
+    function editRow(button) {
+      var row = button.parentNode.parentNode;
+      row.classList.remove("greyed-out");
+      disableInputs(row, false);
+    }
+
+    function disableInputs(row, disable) {
+      var inputs = row.querySelectorAll("input, select");
+      for (var i = 0; i < inputs.length; i++) {
+        inputs[i].readOnly = disable;
+      }
+    }
+    // ]]>
   </script>
 
 </body>
