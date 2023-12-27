@@ -8,46 +8,17 @@ function addRows() {
 
     // Limit to creating 3 new rows
     for (var i = 0; i < 3; i++) {
-        var newRow = document.createElement("tr");
-
         // Add your custom facets or components for each column
-        for (var j = 0; j < 2; j++) { // Assuming 2 columns, adjust as needed
-            var column = document.createElement("td");
+        var newRowHTML = '<tr>' +
+            '<td><input type="text" name="cell_' + (i + 1) + '_1" style="width: 80px; height: 20px;"></td>' +
+            '<td><input type="text" name="cell_' + (i + 1) + '_2" style="width: 80px; height: 20px;"></td>' +
+            '<td>' +
+            '<button type="button" class="fancy-button save" disabled>Save</button>' +
+            '<button type="button" class="fancy-button edit">Edit</button>' +
+            '</td>' +
+            '</tr>';
 
-            // Use facets or components as needed
-            var input = document.createElement("input");
-            input.type = "text";
-            input.name = "cell_" + (i + 1) + "_" + (j + 1);
-            // Adjust the width and height as needed
-            input.style.width = "80px";
-            input.style.height = "20px";
-            column.appendChild(input);
-
-            newRow.appendChild(column);
-        }
-
-        // Initialize buttons similar to the existing rows
-        var actionColumn = document.createElement("td");
-
-        var saveButton = document.createElement("button");
-        saveButton.type = "button";
-        saveButton.className = "fancy-button save";
-        saveButton.textContent = "Save";
-        saveButton.disabled = true;
-        saveButton.onclick = function () { saveRow(this); };
-        actionColumn.appendChild(saveButton);
-
-        var editButton = document.createElement("button");
-        editButton.type = "button";
-        editButton.className = "fancy-button edit";
-        editButton.textContent = "Edit";
-        editButton.disabled = false;
-        editButton.onclick = function () { editRow(this); };
-        actionColumn.appendChild(editButton);
-
-        newRow.appendChild(actionColumn);
-
-        // Append the new row to the data table
-        dataTable.appendChild(newRow);
+        // Append the new row HTML to the data table
+        dataTable.insertAdjacentHTML('beforeend', newRowHTML);
     }
 }
