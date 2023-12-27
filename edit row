@@ -1,0 +1,58 @@
+<script type="text/javascript">
+    // <![CDATA[
+    function editRow(button) {
+        var row = button.closest('tr'); // Find the closest row element
+        enableInputs(row);
+    }
+
+    function saveRow(button) {
+        var row = button.closest('tr'); // Find the closest row element
+        disableInputs(row);
+        // Additional logic to save the row data if needed
+    }
+
+    function enableInputs(row) {
+        var inputs = row.querySelectorAll('input');
+        inputs.forEach(function (input) {
+            input.removeAttribute('disabled');
+        });
+
+        var select = row.querySelector('select');
+        if (select) {
+            select.removeAttribute('disabled');
+        }
+
+        var saveButton = row.querySelector('.save');
+        if (saveButton) {
+            saveButton.removeAttribute('disabled');
+        }
+
+        var editButton = row.querySelector('.edit');
+        if (editButton) {
+            editButton.setAttribute('disabled', 'true');
+        }
+    }
+
+    function disableInputs(row) {
+        var inputs = row.querySelectorAll('input');
+        inputs.forEach(function (input) {
+            input.setAttribute('disabled', 'true');
+        });
+
+        var select = row.querySelector('select');
+        if (select) {
+            select.setAttribute('disabled', 'true');
+        }
+
+        var saveButton = row.querySelector('.save');
+        if (saveButton) {
+            saveButton.setAttribute('disabled', 'true');
+        }
+
+        var editButton = row.querySelector('.edit');
+        if (editButton) {
+            editButton.removeAttribute('disabled');
+        }
+    }
+    // ]]>
+</script>
