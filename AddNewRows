@@ -1,24 +1,76 @@
+<h:form id="dataForm">
+    <h:dataTable value="#{personBean.personList}" var="person" id="dataTable">
+        <h:column>
+            <f:facet name="header">Column 1</f:facet>
+            <h:outputText value="#{person.name}" />
+        </h:column>
+        <h:column>
+            <f:facet name="header">Column 2</f:facet>
+            <h:outputText value="#{person.age}" />
+        </h:column>
+        <h:column>
+            <f:facet name="header">Actions</f:facet>
+            <h:commandButton value="Save" action="#{personBean.saveRow(person)}" disabled="#{person.rowDisabled}" styleClass="fancy-button save" />
+            <h:commandButton value="Edit" action="#{personBean.editRow(person)}" disabled="#{!person.rowDisabled}" styleClass="fancy-button edit" />
+        </h:column>
+    </h:dataTable>
 
-function addRows() {
-    // Assuming there's a container div with an id "dataForm" wrapping the data table
-    var dataForm = document.getElementById("dataForm");
+    <br />
+    <button type="button" onclick="addRows()">Add New Rows</button>
+    <h:commandButton value="Submit" action="#{personBean.submit}" />
+</h:form>
 
-    // Assuming the data table has an id "dataTable"
-    var dataTable = dataForm.querySelector("#dataTable");
+<script type="text/javascript">
+    // <![CDATA[
+    function addRows() {
+        var dataTable = document.getElementById("dataTable");
 
-    // Limit to creating 3 new rows
-    for (var i = 0; i < 3; i++) {
-        // Add your custom facets or components for each column
-        var newRowHTML = '<tr>' +
-            '<td><input type="text" name="cell_' + (i + 1) + '_1" style="width: 80px; height: 20px;"></td>' +
-            '<td><input type="text" name="cell_' + (i + 1) + '_2" style="width: 80px; height: 20px;"></td>' +
-            '<td>' +
-            '<button type="button" class="fancy-button save" disabled>Save</button>' +
-            '<button type="button" class="fancy-button edit">Edit</button>' +
-            '</td>' +
-            '</tr>';
+        // Limit to creating 3 new rows
+        for (var i = 0; i < 3; i++) {
+            var newRow = document.createElement("tr");
 
-        // Append the new row HTML to the data table
-        dataTable.insertAdjacentHTML('beforeend', newRowHTML);
+            // Add your custom facets or components for each column
+            var column1 = document.createElement("td");
+            var input1 = document.createElement("input");
+            input1.type = "text";
+            input1.name = "cell_" + (i + 1) + "_1";
+            input1.style.width = "80px";
+            input1.style.height = "20px";
+            column1.appendChild(input1);
+            newRow.appendChild(column1);
+
+            var column2 = document.createElement("td");
+            var input2 = document.createElement("input");
+            input2.type = "text";
+            input2.name = "cell_" + (i + 1) + "_2";
+            input2.style.width = "80px";
+            input2.style.height = "20px";
+            column2.appendChild(input2);
+            newRow.appendChild(column2);
+
+            var actionColumn = document.createElement("td");
+            var saveButton = document.createElement("button");
+            saveButton.type = "button";
+            saveButton.className = "fancy-button save";
+            saveButton.textContent = "Save";
+            saveButton.disabled = true;
+            saveButton.onclick = function () { saveRow(this); };
+            actionColumn.appendChild(saveButton);
+
+            var editButton = document.createElement("button");
+            editButton.type = "button";
+            editButton.className = "fancy-button edit";
+            editButton.textContent = "Edit";
+            editButton.disabled = false;
+            editButton.onclick = function () { editRow(this); };
+            actionColumn.appendChild(editButton);
+
+            newRow.appendChild(actionColumn);
+
+            dataTable.appendChild(newRow);
+        }
     }
-}
+
+    // ... (saveRow and editRow functions)
+    // ]]>
+</script>
