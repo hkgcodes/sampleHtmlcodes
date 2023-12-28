@@ -4,7 +4,7 @@
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:p="http://primefaces.org/ui">
 <h:head>
-    <title>PrimeFaces DataTable with Edit using Facet</title>
+    <title>PrimeFaces DataTable with Custom Edit Button</title>
 </h:head>
 <h:body>
 
@@ -17,12 +17,15 @@
                 <p:outputLabel value="#{item.column2}" />
             </p:column>
             <p:column headerText="Actions">
-                <p:rowEditor>
-                    <f:facet name="footer">
+                <p:cellEditor>
+                    <f:facet name="output">
+                        <h:outputText value="Edit" />
+                    </f:facet>
+                    <f:facet name="input">
                         <h:commandButton value="Save" action="#{yourBean.save}" />
                         <h:commandButton value="Cancel" action="#{yourBean.cancel}" />
                     </f:facet>
-                </p:rowEditor>
+                </p:cellEditor>
             </p:column>
         </p:dataTable>
     </h:form>
