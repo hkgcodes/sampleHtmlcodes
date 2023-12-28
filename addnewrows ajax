@@ -1,0 +1,16 @@
+function addRows() {
+   var personListInput = document.getElementById('dataForm:personList');
+   var personList = JSON.parse(personListInput.value);
+
+   // Example data for a new person
+   var newPerson = { name: 'New Person', age: 0, rowDisabled: false };
+
+   // Add the new person to the list
+   personList.push(newPerson);
+
+   // Update the hidden input value with the new list
+   personListInput.value = JSON.stringify(personList);
+
+   // Trigger PrimeFaces AJAX update for the dataTable
+   PrimeFaces.ajax.AjaxRequest('/yourPage.xhtml', null, {process: '@this', update: 'dataForm:dataTable'});
+}
