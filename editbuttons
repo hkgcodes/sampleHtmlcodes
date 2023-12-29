@@ -1,0 +1,23 @@
+<h:form id="form">
+    <p:growl id="msgs" showDetail="true"/>
+
+    <div class="card">
+        <h5>Row Editing</h5>
+        <p:dataTable id="products1" var="product" value="#{dtEditView.products1}" editable="true"
+                     style="margin-bottom:20px">
+
+            <!-- Other columns omitted for brevity -->
+
+            <p:column style="width: 15rem; text-align: center;">
+                <p:rowEditor styleClass="edit-buttons">
+                    <f:facet name="edit">
+                        <p:commandButton value="Save" process="@this" update=":form:msgs" action="#{dtEditView.onRowEdit}" />
+                    </f:facet>
+                    <f:facet name="cancel">
+                        <p:commandButton value="Cancel" process="@this" update=":form:msgs" action="#{dtEditView.onRowCancel}" />
+                    </f:facet>
+                </p:rowEditor>
+            </p:column>
+        </p:dataTable>
+    </div>
+</h:form>
