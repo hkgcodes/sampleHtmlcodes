@@ -1,0 +1,20 @@
+<h:form>
+    <p:dataTable value="#{yourBean.yourList}" var="item" editable="true">
+        <p:column headerText="Column 1">
+            <h:outputText value="#{item.column1}" />
+        </p:column>
+        <p:column headerText="Column 2">
+            <h:outputText value="#{item.column2}" />
+        </p:column>
+        <p:column headerText="Column 3">
+            <p:cellEditor>
+                <f:facet name="output">
+                    <h:outputText value="#{item.column3}" />
+                </f:facet>
+                <f:facet name="input">
+                    <p:inputText value="#{item.column3}" />
+                </f:facet>
+            </p:cellEditor>
+        </p:column>
+    </p:dataTable>
+</h:form>
