@@ -1,0 +1,6 @@
+<p:dataTable var="item" value="#{yourBean.yourList}">
+    <p:column headerText="Column Header">
+        <h:inputText value="#{item.inputValue}" />
+    </p:column>
+    <!-- Other columns and configurations go here -->
+</p:dataTable>
