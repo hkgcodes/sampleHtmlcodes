@@ -1,0 +1,22 @@
+<p:dataTable var="item" value="#{yourBean.yourList}">
+    <p:column headerText="Column Header 1">
+        <div style="display: flex; align-items: center;">
+            <h:outputText value="#{item.inputValue}" rendered="#{not item.editable}" />
+            <h:inputText value="#{item.inputValue}" rendered="#{item.editable}" size="10" />
+            <h:commandButton value="Button 1" action="#{yourBean.button1Action}" style="width: 80px; margin-right: 5px;" disabled="#{not item.editable}" />
+            <h:commandButton value="Button 2" action="#{yourBean.button2Action}" style="width: 80px;" disabled="#{not item.editable}" />
+        </div>
+    </p:column>
+    <p:column headerText="Column Header 2">
+        <div style="display: flex; align-items: center;">
+            <h:outputText value="#{item.inputValue}" rendered="#{not item.editable}" />
+            <h:inputText value="#{item.inputValue}" rendered="#{item.editable}" size="10" />
+            <h:commandButton value="Button 1" action="#{yourBean.button1Action}" style="width: 80px; margin-right: 5px;" disabled="#{not item.editable}" />
+            <h:commandButton value="Button 2" action="#{yourBean.button2Action}" style="width: 80px;" disabled="#{not item.editable}" />
+        </div>
+    </p:column>
+</p:dataTable>
+
+<br/>
+
+<h:commandButton value="Add New Rows" action="#{yourBean.addNewRowsAction}" />
