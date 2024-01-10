@@ -1,6 +1,8 @@
 <p:dataTable var="item" value="#{yourBean.yourList}">
     <p:column headerText="Column Header">
-        <h:inputText value="#{item.inputValue}" />
+        <h:inputText value="#{item.inputValue}" size="10" />
+        <h:commandButton value="Button 1" action="#{yourBean.button1Action}" />
+        <h:commandButton value="Button 2" action="#{yourBean.button2Action}" />
     </p:column>
     <!-- Other columns and configurations go here -->
 </p:dataTable>
