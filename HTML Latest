@@ -1,0 +1,76 @@
+<p:column headerText="Code">
+    <p:cellEditor>
+        <f:facet name="output"><h:outputText value="#{product.code}" /></f:facet>
+        <f:facet name="input">
+            <p:inputText id="modelInput" value="#{product.code}" style="width:100%" rendered="#{product.new}" />
+            <h:outputText value="#{product.code}" rendered="#{not product.new}" />
+        </f:facet>
+    </p:cellEditor>
+</p:column>
+
+<p:column headerText="Name">
+    <p:cellEditor>
+        <f:facet name="output"><h:outputText value="#{product.name}" /></f:facet>
+        <f:facet name="input">
+            <p:inputText value="#{product.name}" style="width:100%" rendered="#{product.new}" />
+            <h:outputText value="#{product.name}" rendered="#{not product.new}" />
+        </f:facet>
+    </p:cellEditor>
+</p:column>
+
+<p:column headerText="Status">
+    <p:cellEditor>
+        <f:facet name="output"><h:outputText value="#{product.inventoryStatus}" /></f:facet>
+        <f:facet name="input">
+            <h:selectOneMenu value="#{product.inventoryStatus}" style="width:100%" rendered="#{product.new}">
+                <f:selectItems value="#{dtEditView.inventoryStatusList}" var="status"
+                               itemLabel="#{status}" itemValue="#{status}" />
+            </h:selectOneMenu>
+            <h:outputText value="#{product.inventoryStatus}" rendered="#{not product.new}" />
+        </f:facet>
+    </p:cellEditor>
+</p:column>
+
+<p:column headerText="Price">
+    <p:cellEditor>
+        <f:facet name="output"><h:outputText value="#{product.price}" /></f:facet>
+        <f:facet name="input">
+            <p:inputText value="#{product.price}" style="width:100%" label="Price" />
+        </f:facet>
+    </p:cellEditor>
+</p:column>
+
+
+
+---------------- Java Code Here---------------
+
+public void onAddNew() {
+    // Add one new product to the table:
+    Product newProduct = new Product((int) (Math.random() * 10000), "f230fh0g3", "New Bamboo Watch",
+            "Product Description", "bamboo-watch.jpg", 100, "Accessories", 24, InventoryStatus.INSTOCK, 5);
+    newProduct.setNew(true); // Set isNew to true for newly added rows
+    products1.add(newProduct);
+
+    FacesMessage msg = new FacesMessage("New Product added", String.valueOf(newProduct.getId()));
+    FacesContext.getCurrentInstance().addMessage(null, msg);
+}
+
+------Another Class ------
+public class Product implements Serializable {
+    // existing properties
+
+    private boolean isNew;
+
+    // constructors, getters, setters, etc.
+
+    public boolean isNew() {
+        return isNew;
+    }
+
+    public void setNew(boolean isNew) {
+        this.isNew = isNew;
+    }
+}
+
+
+
