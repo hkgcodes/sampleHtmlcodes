@@ -1,0 +1,6 @@
+public String getColumnName(int index) {
+        if (index >= 0 && index < columnNames.size()) {
+            return columnNames.get(index);
+        }
+        return null;
+    }
