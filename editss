@@ -1,0 +1,20 @@
+<h:selectOneMenu id="statusInput" value="#{product.inventoryStatus}" style="width:100%">
+    <!-- Select items -->
+</h:selectOneMenu>
+<p:message for="statusInput" styleClass="warningMessage" />
+
+
+
+public void onRowEdit(RowEditEvent<Product> event) {
+    Product editedProduct = event.getObject();
+    String status = editedProduct.getInventoryStatus();
+
+    if (status == null || status.isEmpty() || status.equals("Select an option")) {
+        FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Please choose an option", null);
+        FacesContext.getCurrentInstance().addMessage(null, msg);
+    } else {
+        // Proceed with your existing logic for row edit
+        FacesMessage msg = new FacesMessage("Product Edited", String.valueOf(editedProduct.getId()));
+        FacesContext.getCurrentInstance().addMessage(null, msg);
+    }
+}
