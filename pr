@@ -1,0 +1,1 @@
+        PrimeFaces.current().executeScript("PF('products1').getTbodyEl().children().eq(" + event.getRowIndex() + ").find('.ui-row-editor-pencil').click();");
