@@ -1,0 +1,39 @@
+To add a new column named "S.NO" with serial numbers to the data table, you can modify the HTML file (`index.xhtml`) as follows:
+
+```html
+<p:dataTable id="products1" widgetVar="products1" var="product" value="#{dtAddRowView.products1}"
+                 editable="true">
+    <f:facet name="header">
+        Row Editing with add functionality
+    </f:facet>
+
+    <!-- Add new column for serial numbers -->
+    <p:column headerText="S.NO">
+        <!-- Use rowIndexVar to get the index of the current row -->
+        <h:outputText value="#{rowIndexVar + 1}" />
+    </p:column>
+
+    <!-- Existing columns -->
+    <p:column headerText="Code">
+        <!-- Column content -->
+    </p:column>
+    <p:column headerText="Name">
+        <!-- Column content -->
+    </p:column>
+    <p:column headerText="Status">
+        <!-- Column content -->
+    </p:column>
+    <p:column headerText="Price">
+        <!-- Column content -->
+    </p:column>
+
+    <!-- Row editor column -->
+    <p:column style="width:6rem">
+        <!-- Row editor component -->
+    </p:column>
+</p:dataTable>
+```
+
+This modification adds a new column titled "S.NO" to the data table. Inside this column, `<h:outputText>` is used to display the serial numbers. The `rowIndexVar` is a reserved keyword in JSF that represents the index of the current row, starting from 0. By adding 1 to `rowIndexVar`, we get the serial number starting from 1.
+
+Make sure to place this new `<p:column>` element before the existing columns in the data table.
