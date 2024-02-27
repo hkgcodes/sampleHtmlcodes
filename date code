@@ -1,0 +1,24 @@
+<p:column headerText="Date">
+    <p:cellEditor>
+        <f:facet name="output">
+            <h:outputText value="#{dtAddRowView.formatDate(product.date)}"/>
+        </f:facet>
+        <f:facet name="input"><p:calendar value="#{product.date}" pattern="dd-MM-yyyy"/></f:facet>
+    </p:cellEditor>
+</p:column>
+
+
+
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
+
+public class AddRowView implements Serializable {
+    // Existing code...
+
+    public String formatDate(LocalDate date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        return date.format(formatter);
+    }
+
+    // Existing code...
+}
