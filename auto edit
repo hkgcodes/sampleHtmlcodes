@@ -26,3 +26,14 @@ oncomplete="PF('products1').addRow(); PF('products1').startEdit(PF('products1').
       productsTable.startEdit(productsTable.getData().size() - 1);
     }
   }
+private void initiateEditForNewProduct() {
+  FacesContext context = FacesContext.getCurrentInstance();
+  DataTable productsTable = (DataTable) context.getViewRoot().findComponent("form:products1");
+  if (productsTable != null) {
+    Object value = productsTable.getValue();
+    if (value instanceof Collection) {
+      ((Collection) value).size(); // Assuming it's a collection with size method
+      productsTable.startEdit(productsTable.getRowIndex()); // Use getRowIndex instead
+    }
+  }
+}
