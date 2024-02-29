@@ -1,0 +1,15 @@
+import org.primefaces.event.RowEditEvent;
+
+public void onAddNew() {
+    // Add one new product to the table:
+    Product newProduct = new Product((int) (Math.random() * 10000), "f230fh0g3", "New Bamboo Watch",
+            "Product Description", "bamboo-watch.jpg", 100, "Accessories", 24, InventoryStatus.INSTOCK, 5);
+    products1.add(newProduct);
+
+    FacesMessage msg = new FacesMessage("New Product added", String.valueOf(newProduct.getId()));
+    FacesContext.getCurrentInstance().addMessage(null, msg);
+    
+    // Trigger row edit programmatically for the newly added row
+    RowEditEvent<Product> rowEditEvent = new RowEditEvent<>(null, newProduct);
+    onRowEdit(rowEditEvent);
+}
