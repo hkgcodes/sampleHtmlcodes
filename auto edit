@@ -123,3 +123,8 @@ RequestContext.getCurrentInstance().execute("triggerRowEditing(" + rowIndex + ")
     }
 </script>
 </script>
+
+
+var nextRow = $('[id$="products1"] tr:last').next('tr');
+        // Click the edit button in the next row
+        nextRow.find('.ui-row-editor span.ui-icon-pencil').click();
