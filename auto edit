@@ -97,3 +97,18 @@ private int getCollectionSize(Object value) {
             PF('products1').getTbody().children[index].querySelector(".ui-row-editor-init").click();
         }
     </script>
+
+
+
+
+RequestContext.getCurrentInstance().execute("triggerRowEditing(" + rowIndex + ")")
+
+<script>
+    // Define JavaScript function to trigger row editing
+    function triggerRowEditing(rowIndex) {
+        var editButton = document.getElementById('form:dataTable:' + rowIndex + ':editButton');
+        if (editButton) {
+            editButton.click(); // Simulate click on the edit button
+        }
+    }
+</script>
