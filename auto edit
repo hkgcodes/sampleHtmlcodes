@@ -77,3 +77,23 @@ private int getCollectionSize(Object value) {
     throw new UnsupportedOperationException("Unsupported data type for size calculation");
   }
 }
+
+<div class="grid mt-3">
+            <div class="col-12">
+                <p:commandButton value="Add new row" process="@this" update=":form:msgs"
+                                 action="#{dtAddRowView.onAddNew()}" onclick="addNewRowAndEdit();"/>
+            </div>
+        </div>
+
+    </h:form>
+
+    <script>
+        function addNewRowAndEdit() {
+            // Trigger addRow method of the dataTable
+            PF('products1').addRow();
+            // Get the newly added row index (count - 1)
+            var index = PF('products1').getRowCount() - 1;
+            // Switch to edit mode for the newly added row
+            PF('products1').getTbody().children[index].querySelector(".ui-row-editor-init").click();
+        }
+    </script>
