@@ -111,4 +111,15 @@ RequestContext.getCurrentInstance().execute("triggerRowEditing(" + rowIndex + ")
             editButton.click(); // Simulate click on the edit button
         }
     }
+
+
+<p:commandButton value="Add new row" process="@this" update=":form:msgs"
+                 action="#{dtAddRowView.onAddNew()}" oncomplete="handleAddNew();"/>
+
+<script>
+    function handleAddNew() {
+        // Find the last row edit button and click it
+        $('[id$="products1"] tr:last .ui-row-editor span.ui-icon-pencil').click();
+    }
+</script>
 </script>
