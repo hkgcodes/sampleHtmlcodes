@@ -16,3 +16,13 @@ public void onAddNew() {
 
 
 oncomplete="PF('products1').addRow(); PF('products1').startEdit(PF('products1').data.length - 1);"/>
+
+
+ private void initiateEditForNewProduct() {
+    // This method can be called asynchronously (e.g., after data update)
+    FacesContext context = FacesContext.getCurrentInstance();
+    DataTable productsTable = (DataTable) context.getViewRoot().findComponent("form:products1");
+    if (productsTable != null && productsTable.getData() != null) {
+      productsTable.startEdit(productsTable.getData().size() - 1);
+    }
+  }
