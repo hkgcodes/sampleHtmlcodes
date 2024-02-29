@@ -37,3 +37,43 @@ private void initiateEditForNewProduct() {
     }
   }
 }
+
+
+
+
+
+
+
+
+private void initiateEditForNewProduct() {
+  FacesContext context = FacesContext.getCurrentInstance();
+  DataTable productsTable = (DataTable) context.getViewRoot().findComponent("form:products1");
+  if (productsTable != null) {
+    Object value = productsTable.getValue();
+    if (value != null) {
+      try {
+        int size = getCollectionSize(value);
+        if (size > 0) {
+          Object rowKey = productsTable.getRowData();
+          if (rowKey != null) {
+            productsTable.startEdit(rowKey.toString());
+          }
+        }
+      } catch (Exception e) {
+        FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                                            "Error initiating edit", e.getMessage());
+        FacesContext.getCurrentInstance().addMessage(null, msg);
+      }
+    }
+  }
+}
+
+private int getCollectionSize(Object value) {
+  if (value instanceof Collection) {
+    return ((Collection) value).size();
+  } else if (value instanceof Object[]) {
+    return ((Object[]) value).length;
+  } else {
+    throw new UnsupportedOperationException("Unsupported data type for size calculation");
+  }
+}
