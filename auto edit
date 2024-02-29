@@ -13,3 +13,6 @@ public void onAddNew() {
     RowEditEvent<Product> rowEditEvent = new RowEditEvent<>(null, newProduct);
     onRowEdit(rowEditEvent);
 }
+
+
+oncomplete="PF('products1').addRow(); PF('products1').startEdit(PF('products1').data.length - 1);"/>
