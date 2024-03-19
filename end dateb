@@ -1,0 +1,19 @@
+<p:column headerText="Date">
+    <p:cellEditor>
+        <f:facet name="output"><h:outputText value="#{product.date}"/></f:facet>
+        <f:facet name="input">
+            <p:calendar id="dateInput" value="#{product.date}" showOn="button" style="width:100%"
+                        onfocus="updateToCurrentMonth(this)"/>
+        </f:facet>
+    </p:cellEditor>
+</p:column>
+
+<script>
+    function updateToCurrentMonth(input) {
+        var today = new Date();
+        var month = today.getMonth() + 1; // Month starts from 0
+        var year = today.getFullYear();
+        input.setCurrentMonth(month);
+        input.setCurrentYear(year);
+    }
+</script>
