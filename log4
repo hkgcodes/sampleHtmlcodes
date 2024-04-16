@@ -35,4 +35,21 @@ public class LogMasker {
 
             // Regex to find "account_no" followed by a series of digits
             Pattern pattern = Pattern.compile("\"account_no\"\\s*:\\s*(\\d+)");
-            Matcher matcher = pattern.matcher⬤
+            Matcher matcher = pattern.matcher(content);
+
+            StringBuffer sb = new StringBuffer();
+            while (matcher.find()) {
+                // Mask the account number
+                String maskedAccountNo = matcher.group(1).replaceAll("\\d", "X");
+                matcher.appendReplacement(sb, "\"account_no\" : " + maskedAccountNo);
+            }
+            matcher.appendTail(sb);
+
+            // Write to output file
+            Files.write(outputFile.toPath(), sb.toString().getBytes(charset));
+        } catch (IOException e) {
+            System.err.println("Error processing file: " + inputFile.getName());
+            e.printStackTrace();
+        }
+    }
+}
