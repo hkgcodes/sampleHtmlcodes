@@ -1,0 +1,51 @@
+import java.io.*;
+import java.nio.file.*;
+import java.util.regex.*;
+
+public class LogMasker {
+    public static void main(String[] args) {
+        File inputDir = new File(System.getProperty("user.dir"), "INPUT");
+        File outputDir = new File(System.getProperty("user.dir"), "OUTPUT");
+
+        // Ensure output directory exists
+        if (!outputDir.exists()) {
+            outputDir.mkdir();
+        }
+
+        if (inputDir.exists() && inputDir.isDirectory()) {
+            File[] files = inputDir.listFiles();
+
+            if (files != null) {
+                for (File file : files) {
+                    maskFile(file, new File(outputDir, file.getName()));
+                }
+            }
+        }
+    }
+
+    private static void maskFile(File inputFile, File outputFile) {
+        try {
+            Path path = inputFile.toPath();
+            Charset charset = StandardCharsets.UTF_8;
+            String content = new String(Files.readAllBytes(path), charset);
+
+            // Regex to find "account_no" followed by a series of digits
+            Pattern pattern = Pattern.compile("\"account_no\"\\s*:\\s*(\\d+)");
+            Matcher matcher = pattern.matcher(content);
+
+            StringBuffer sb = new StringBuffer();
+            while (matcher.find()) {
+                // Mask the account number
+                String maskedAccountNo = matcher.group(1).replaceAll("\\d", "X");
+                matcher.appendReplacement(sb, "\"account_no\" : " + maskedAccountNo);
+            }
+            matcher.appendTail(sb);
+
+            // Write to output file
+            Files.write(outputFile.toPath(), sb.toString().getBytes(charset));
+        } catch (IOException e) {
+            System.err.println("Error processing file: " + inputFile.getName());
+            e.printStackTrace();
+        }
+    }
+}
