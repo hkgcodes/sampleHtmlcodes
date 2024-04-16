@@ -1,0 +1,46 @@
+import java.io.*;
+import java.nio.file.*;
+import java.util.regex.*;
+
+public class LogMasker {
+    public static void main(String[] args) {
+        String currentDir = System.getProperty("user.dir"); // Gets the directory from which the JVM was started
+        File inputDir = new File(currentDir, "INPUT");
+        File outputDir = new File(currentDir, "OUTPUT");
+
+        // Ensure output directory exists
+        if (!outputDir.exists()) {
+            if (!outputDir.mkdirs()) {
+                System.err.println("Failed to create output directory, check permissions.");
+                return;
+            }
+        }
+
+        // Process all files in the input directory
+        File[] files = inputDir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                try {
+                    maskFile(file, new File(outputDir, file.getName()));
+                } catch (IOException e) {
+                    System.err.println("Error processing file " + file.getName() + ": " + e.getMessage());
+                }
+            }
+        } else {
+            System.err.println("Input directory does not exist or is empty.");
+        }
+    }
+
+    private static void maskFile(File inputFile, File outputFile) throws IOException {
+        Pattern accNumPattern = Pattern.compile("\\b\\d{8,12}\\b"); // Regex pattern for account numbers
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String maskedLine = accNumPattern.matcher(line).replaceAll("XXXX-XXXX"); // Mask account numbers
+                writer.write(maskedLine);
+                writer.newLine();
+            }
+        }
+    }
+}
