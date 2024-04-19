@@ -1,0 +1,47 @@
+import java.time.LocalDate;
+import java.util.*;
+
+public class StudentProcessor {
+    private List<StudentDto> students;
+
+    public StudentProcessor(List<StudentDto> students) {
+        this.students = students;
+    }
+
+    private Map<String, List<StudentDto>> groupStudents() {
+        Map<String, List<StudentDto>> groupedStudents = new HashMap<>();
+        for (StudentDto student : students) {
+            String key = student.getId() + "|" + student.getName() + "|" + student.getEmail();
+            groupedStudents.putIfAbsent(key, new ArrayList<>());
+            groupedStudents.get(key).add(student);
+        }
+        return groupedStudents;
+    }
+
+    public int countInvalidRecords() {
+        int count = 0;
+        Map<String, List<StudentDto>> groupedStudents = groupStudents();
+
+        for (List<StudentDto> group : groupedStudents.values()) {
+            // Sort each group by the date of joining
+            Collections.sort(group, Comparator.comparing(StudentDto::getDateOfJoining));
+
+            // Initialize lastDateOfLeaving
+            LocalDate lastDateOfLeaving = null;
+
+            for (StudentDto student : group) {
+                if (lastDateOfLeaving != null) {
+                    // Check if the current student's joining date is before the last leaving date
+                    if (!student.getDateOfJoining().isAfter(lastDateOfLeaving)) {
+                        count++; // There is an overlap
+                    } else if (!student.getDateOfJoining().isEqual(lastDateOfLeaving.plusDays(1))) {
+                        count++; // There is a gap
+                    }
+                }
+                // Update the lastDateOfLeaving to the current student's leaving date
+                lastDateOfLeaving = student.getDateOfLeaving();
+            }
+        }
+        return count;
+    }
+}
