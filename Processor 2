@@ -1,0 +1,67 @@
+import java.time.LocalDate;
+import java.util.*;
+
+public class StudentProcessor {
+    private List<StudentDto> allStudents;
+    private List<StudentDto> editedStudents;
+
+    public StudentProcessor(List<StudentDto> allStudents, List<StudentDto> editedStudents) {
+        this.allStudents = allStudents;
+        this.editedStudents = editedStudents;
+    }
+
+    private Map<String, List<StudentDto>> groupStudents(List<StudentDto> students) {
+        Map<String, List<StudentDto>> groupedStudents = new HashMap<>();
+        for (StudentDto student : students) {
+            String key = student.getId() + "|" + student.getName() + "|" + student.getEmail();
+            groupedStudents.putIfAbsent(key, new ArrayList<>());
+            groupedStudents.get(key).add(student);
+        }
+        return groupedStudents;
+    }
+
+    public int checkEditedRecords() {
+        int invalidCount = 0;
+        Map<String, List<StudentDto>> allGrouped = groupStudents(allStudents);
+
+        for (StudentDto edited : editedStudents) {
+            String key = edited.getId() + "|" + edited.getName() + "|" + edited.getEmail();
+            List<StudentDto> group = allGrouped.getOrDefault(key, new ArrayList<>());
+            group.sort(Comparator.comparing(StudentDto::getDateOfJoining));
+
+            for (StudentDto student : group) {
+                if (student.getRowNum() == edited.getRowNum()) {
+                    continue; // Skip self-comparison
+                }
+
+                // Check if joining and leaving dates are exactly the same
+                if (edited.getDateOfJoining().isEqual(student.getDateOfJoining()) &&
+                    edited.getDateOfLeaving().isEqual(student.getDateOfLeaving())) {
+                    invalidCount++;
+                    break; // Found exact match in dates
+                }
+
+                // Check if only joining dates are the same
+                if (edited.getDateOfJoining().isEqual(student.getDateOfJoining())) {
+                    invalidCount++;
+                    break; // Found same joining dates
+                }
+
+                // Check for overlap
+                if (edited.getDateOfJoining().isBefore(student.getDateOfLeaving()) &&
+                    edited.getDateOfLeaving().isAfter(student.getDateOfJoining())) {
+                    invalidCount++;
+                    break; // Found overlap
+                }
+
+                // Check for gaps (if the records are consecutive in sorted order)
+                if (student.getDateOfLeaving().isBefore(edited.getDateOfJoining()) &&
+                    !student.getDateOfLeaving().plusDays(1).isEqual(edited.getDateOfJoining())) {
+                    invalidCount++;
+                    break; // Found a gap
+                }
+            }
+        }
+        return invalidCount;
+    }
+}
