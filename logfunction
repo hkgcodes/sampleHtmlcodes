@@ -1,0 +1,26 @@
+private static void maskFile(File inputFile, File outputFile) {
+    try {
+        Path path = inputFile.toPath();
+        Charset charset = StandardCharsets.UTF_8;
+        String content = new String(Files.readAllBytes(path), charset);
+
+        // Regex to find "account_no" and "accountFromAccountNo" followed by a series of digits
+        Pattern pattern = Pattern.compile("\"(account_no|accountFromAccountNo)\"\\s*:\\s*(\\d+)");
+        Matcher matcher = pattern.matcher(content);
+
+        StringBuffer sb = new StringBuffer();
+        while (matcher.find()) {
+            // Mask all digits except the last four
+            String accountNo = matcher.group(2);
+            String maskedAccountNo = accountNo.replaceAll("\\d(?=\\d{4})", "X");
+            matcher.appendReplacement(sb, Matcher.quoteReplacement("\"" + matcher.group(1) + "\" : " + maskedAccountNo));
+        }
+        matcher.appendTail(sb);
+
+        // Write to output file
+        Files.write(outputFile.toPath(), sb.toString().getBytes(charset));
+    } catch (IOException e) {
+        System.err.println("Error processing file: " + inputFile.getName());
+        e.printStackTrace();
+    }
+}
