@@ -1,0 +1,56 @@
+private static void maskFile(File inputFile, File outputFile) {
+    try {
+        Path path = inputFile.toPath();
+        Charset charset = StandardCharsets.UTF_8;
+        String content = new String(Files.readAllBytes(path), charset);
+
+        // Regex patterns to find "account_no", "accountFromAccountNo", and "payee_acc_no" followed by a series of digits
+        Pattern accountNoPattern = Pattern.compile("\"account_no\"\\s*:\\s*(\\d+)");
+        Pattern accountFromAccountNoPattern = Pattern.compile("\"accountFromAccountNo\"\\s*:\\s*(\\d+)");
+        Pattern payeeAccNoPattern = Pattern.compile("\"payee_acc_no\"\\s*:\\s*(\\d+)");
+
+        // Matcher for "account_no"
+        Matcher accountNoMatcher = accountNoPattern.matcher(content);
+        // Matcher for "accountFromAccountNo"
+        Matcher accountFromAccountNoMatcher = accountFromAccountNoPattern.matcher(content);
+        // Matcher for "payee_acc_no"
+        Matcher payeeAccNoMatcher = payeeAccNoPattern.matcher(content);
+
+        StringBuffer sb = new StringBuffer();
+        
+        // Process "account_no" occurrences
+        while (accountNoMatcher.find()) {
+            String accountNo = accountNoMatcher.group(1);
+            String maskedAccountNo = accountNo.replaceAll("\\d(?=\\d{4})", "X");
+            String maskedField = "\"account_no\" : " + maskedAccountNo;
+            accountNoMatcher.appendReplacement(sb, Matcher.quoteReplacement(maskedField));
+        }
+        
+        // Process "accountFromAccountNo" occurrences
+        while (accountFromAccountNoMatcher.find()) {
+            String accountNo = accountFromAccountNoMatcher.group(1);
+            String maskedAccountNo = accountNo.replaceAll("\\d(?=\\d{4})", "X");
+            String maskedField = "\"accountFromAccountNo\" : " + maskedAccountNo;
+            accountFromAccountNoMatcher.appendReplacement(sb, Matcher.quoteReplacement(maskedField));
+        }
+        
+        // Process "payee_acc_no" occurrences
+        while (payeeAccNoMatcher.find()) {
+            String accountNo = payeeAccNoMatcher.group(1);
+            String maskedAccountNo = accountNo.replaceAll("\\d(?=\\d{4})", "X");
+            String maskedField = "\"payee_acc_no\" : " + maskedAccountNo;
+            payeeAccNoMatcher.appendReplacement(sb, Matcher.quoteReplacement(maskedField));
+        }
+
+        // Append remaining content
+        accountNoMatcher.appendTail(sb);
+        accountFromAccountNoMatcher.appendTail(sb);
+        payeeAccNoMatcher.appendTail(sb);
+
+        // Write to output file
+        Files.write(outputFile.toPath(), sb.toString().getBytes(charset));
+    } catch (IOException e) {
+        System.err.println("Error processing file: " + inputFile.getName());
+        e.printStackTrace();
+    }
+}
