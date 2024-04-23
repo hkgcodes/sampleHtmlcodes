@@ -33,22 +33,11 @@ public class LogMasker {
             // Read all lines from input file
             List<String> lines = Files.readAllLines(inputPath, charset);
 
-            // Regex pattern to find "account_no", "accountFromAccountNo", and "payee_acc_no" followed by a series of digits
-            Pattern pattern = Pattern.compile("\"(account_no|accountFromAccountNo|payee_acc_no)\"\\s*:\\s*(\\d+)");
-
             // Process each line and mask account numbers
             List<String> maskedLines = new ArrayList<>();
             for (String line : lines) {
-                Matcher matcher = pattern.matcher(line);
-                StringBuffer sb = new StringBuffer();
-                while (matcher.find()) {
-                    String fieldName = matcher.group(1);
-                    String accountNo = matcher.group(2);
-                    String maskedAccountNo = maskAccountNumber(accountNo);
-                    matcher.appendReplacement(sb, "\"" + fieldName + "\" : " + maskedAccountNo);
-                }
-                matcher.appendTail(sb);
-                maskedLines.add(sb.toString());
+                String maskedLine = maskAccountNumbersInLine(line);
+                maskedLines.add(maskedLine);
             }
 
             // Write masked lines to output file
@@ -57,6 +46,28 @@ public class LogMasker {
             System.err.println("Error processing file: " + inputFile.getName());
             e.printStackTrace();
         }
+    }
+
+    private static String maskAccountNumbersInLine(String line) {
+        // Regex pattern to find "account_no" inside a JSON object
+        Pattern jsonPattern = Pattern.compile("\"account_no\"\\s*:\\s*(\\d+)");
+        Matcher jsonMatcher = jsonPattern.matcher(line);
+        StringBuffer sb = new StringBuffer();
+
+        // Process "account_no" inside JSON object
+        while (jsonMatcher.find()) {
+            String accountNo = jsonMatcher.group(1);
+            String maskedAccountNo = maskAccountNumber(accountNo);
+            jsonMatcher.appendReplacement(sb, "\"account_no\" : " + maskedAccountNo);
+        }
+        jsonMatcher.appendTail(sb);
+
+        // Mask "accountFromAccountNo" and "payee_acc_no" anywhere in the line
+        String maskedLine = sb.toString()
+                .replaceAll("\\baccountFromAccountNo\\b\\s*:\\s*(\\d+)", "accountFromAccountNo : " + maskAccountNumber("$1"))
+                .replaceAll("\\bpayee_acc_no\\b\\s*:\\s*(\\d+)", "payee_acc_no : " + maskAccountNumber("$1"));
+
+        return maskedLine;
     }
 
     private static String maskAccountNumber(String accountNo) {
