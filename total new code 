@@ -64,8 +64,8 @@ public class LogMasker {
 
         // Mask "accountFromAccountNo" and "payee_acc_no" anywhere in the line
         String maskedLine = sb.toString()
-                .replaceAll("\\baccountFromAccountNo\\b\\s*:\\s*(\\d+)", "accountFromAccountNo : " + maskAccountNumber("$1"))
-                .replaceAll("\\bpayee_acc_no\\b\\s*:\\s*(\\d+)", "payee_acc_no : " + maskAccountNumber("$1"));
+                .replaceAll("\\baccountFromAccountNo\\b:\\s*(\\d+)", "accountFromAccountNo: " + maskAccountNumber("$1"))
+                .replaceAll("\\bpayee_acc_no\\b:\\s*(\\d+)", "payee_acc_no: " + maskAccountNumber("$1"));
 
         return maskedLine;
     }
