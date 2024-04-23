@@ -1,0 +1,72 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class LogMasker {
+    public static void main(String[] args) {
+        File inputDir = new File(System.getProperty("user.dir"), "INPUT");
+        File outputDir = new File(System.getProperty("user.dir"), "OUTPUT");
+
+        // Ensure output directory exists
+        if (!outputDir.exists()) {
+            outputDir.mkdir();
+        }
+
+        if (inputDir.exists() && inputDir.isDirectory()) {
+            File[] files = inputDir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    maskLogFile(file, new File(outputDir, file.getName()));
+                }
+            }
+        }
+    }
+
+    public static void maskLogFile(File inputFile, File outputFile) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = maskFields(line);
+                writer.write(line);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String maskFields(String line) {
+        // Regular expressions to find account numbers
+        Pattern accountNoPattern = Pattern.compile("(?:account_no|accountFromAccountNo|payee_acc_no)\":\"(\\d{4})(\\d{4})");
+        Matcher matcher = accountNoPattern.matcher(line);
+
+        // Loop through matches and mask the fields
+        StringBuffer maskedLine = new StringBuffer();
+        while (matcher.find()) {
+            String maskedValue = maskDigits(matcher.group(1));
+            matcher.appendReplacement(maskedLine, matcher.group().replace(matcher.group(1), maskedValue));
+        }
+        matcher.appendTail(maskedLine);
+
+        return maskedLine.toString();
+    }
+
+    public static String maskDigits(String digits) {
+        StringBuilder maskedValue = new StringBuilder();
+        for (int i = 0; i < digits.length(); i++) {
+            if (i < digits.length() - 4) {
+                maskedValue.append("*");
+            } else {
+                maskedValue.append(digits.charAt(i));
+            }
+        }
+        return maskedValue.toString();
+    }
+}
