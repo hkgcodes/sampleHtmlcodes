@@ -1,0 +1,51 @@
+import java.io.*;
+import java.util.regex.*;
+
+public class LogMasker {
+    public static void main(String[] args) {
+        File inputFolder = new File("LogMasker/INPUT");
+        File outputFolder = new File("LogMasker/OUTPUT");
+        
+        if (!outputFolder.exists()) {
+            outputFolder.mkdir();
+        }
+        
+        File[] logFiles = inputFolder.listFiles();
+        
+        if (logFiles != null) {
+            for (File file : logFiles) {
+                maskLog(file, outputFolder);
+            }
+        }
+    }
+    
+    private static void maskLog(File inputFile, File outputFolder) {
+        try (BufferedReader br = new BufferedReader(new FileReader(inputFile));
+             BufferedWriter bw = new BufferedWriter(new FileWriter(new File(outputFolder, inputFile.getName())))) {
+            
+            String line;
+            while ((line = br.readLine()) != null) {
+                line = maskAccountNumbers(line);
+                bw.write(line + "\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private static String maskAccountNumbers(String line) {
+        // Regex pattern to match account numbers with groups for each part
+        Pattern pattern = Pattern.compile("\\b\\d{4}(\\d{4})(\\d{4})\\d{4}\\b");
+        Matcher matcher = pattern.matcher(line);
+        
+        // Replace matched account numbers with masked version
+        StringBuffer maskedLine = new StringBuffer();
+        while (matcher.find()) {
+            String masked = "**** **** **** " + matcher.group(1) + " ****";
+            matcher.appendReplacement(maskedLine, masked);
+        }
+        matcher.appendTail(maskedLine);
+        
+        return maskedLine.toString();
+    }
+}
