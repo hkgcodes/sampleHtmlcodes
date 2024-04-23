@@ -1,38 +1,66 @@
-private static void maskFile(File inputFile, File outputFile) {
-    try {
-        Path inputPath = inputFile.toPath();
-        Charset charset = StandardCharsets.UTF_8;
+import java.io.*;
+import java.nio.charset.*;
+import java.nio.file.*;
+import java.util.regex.*;
+import java.util.*;
 
-        // Read all lines from input file
-        List<String> lines = Files.readAllLines(inputPath, charset);
+public class LogMasker {
 
-        // Regex pattern to find "account_no", "accountFromAccountNo", and "payee_acc_no" followed by a series of digits
-        Pattern pattern = Pattern.compile("\"(account_no|accountFromAccountNo|payee_acc_no)\"\\s*:\\s*(\\d+)");
+    public static void main(String[] args) {
+        File inputDir = new File(System.getProperty("user.dir"), "INPUT");
+        File outputDir = new File(System.getProperty("user.dir"), "OUTPUT");
 
-        // Process each line and mask account numbers
-        List<String> maskedLines = new ArrayList<>();
-        for (String line : lines) {
-            Matcher matcher = pattern.matcher(line);
-            StringBuffer sb = new StringBuffer();
-            while (matcher.find()) {
-                String fieldName = matcher.group(1);
-                String accountNo = matcher.group(2);
-                String maskedAccountNo = maskAccountNumber(accountNo);
-                matcher.appendReplacement(sb, "\"" + fieldName + "\" : " + maskedAccountNo);
-            }
-            matcher.appendTail(sb);
-            maskedLines.add(sb.toString());
+        // Ensure output directory exists
+        if (!outputDir.exists()) {
+            outputDir.mkdir();
         }
 
-        // Write masked lines to output file
-        Files.write(outputFile.toPath(), maskedLines, charset);
-    } catch (IOException e) {
-        System.err.println("Error processing file: " + inputFile.getName());
-        e.printStackTrace();
+        if (inputDir.exists() && inputDir.isDirectory()) {
+            File[] files = inputDir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    maskFile(file, new File(outputDir, file.getName()));
+                }
+            }
+        }
     }
-}
 
-private static String maskAccountNumber(String accountNo) {
-    // Mask all digits except the last four
-    return accountNo.replaceAll("\\d(?=\\d{4})", "X");
+    private static void maskFile(File inputFile, File outputFile) {
+        try {
+            Path inputPath = inputFile.toPath();
+            Charset charset = StandardCharsets.UTF_8;
+
+            // Read all lines from input file
+            List<String> lines = Files.readAllLines(inputPath, charset);
+
+            // Regex pattern to find "account_no", "accountFromAccountNo", and "payee_acc_no" followed by a series of digits
+            Pattern pattern = Pattern.compile("\"(account_no|accountFromAccountNo|payee_acc_no)\"\\s*:\\s*(\\d+)");
+
+            // Process each line and mask account numbers
+            List<String> maskedLines = new ArrayList<>();
+            for (String line : lines) {
+                Matcher matcher = pattern.matcher(line);
+                StringBuffer sb = new StringBuffer();
+                while (matcher.find()) {
+                    String fieldName = matcher.group(1);
+                    String accountNo = matcher.group(2);
+                    String maskedAccountNo = maskAccountNumber(accountNo);
+                    matcher.appendReplacement(sb, "\"" + fieldName + "\" : " + maskedAccountNo);
+                }
+                matcher.appendTail(sb);
+                maskedLines.add(sb.toString());
+            }
+
+            // Write masked lines to output file
+            Files.write(outputFile.toPath(), maskedLines, charset);
+        } catch (IOException e) {
+            System.err.println("Error processing file: " + inputFile.getName());
+            e.printStackTrace();
+        }
+    }
+
+    private static String maskAccountNumber(String accountNo) {
+        // Mask all digits except the last four
+        return accountNo.replaceAll("\\d(?=\\d{4})", "X");
+    }
 }
