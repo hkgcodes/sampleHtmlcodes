@@ -1,0 +1,32 @@
+private static void maskFile(File inputFile, File outputFile) {
+    try {
+        Path path = inputFile.toPath();
+        Charset charset = StandardCharsets.UTF_8;
+        String content = new String(Files.readAllBytes(path), charset);
+
+        // Regex patterns to find "account_no", "accountFromAccountNo", and "payee_acc_no" followed by a series of digits
+        Pattern pattern = Pattern.compile("\"(account_no|accountFromAccountNo|payee_acc_no)\"\\s*:\\s*(\\d+)");
+        Matcher matcher = pattern.matcher(content);
+
+        StringBuffer sb = new StringBuffer();
+        
+        // Process all occurrences of fields and mask account numbers
+        while (matcher.find()) {
+            String fieldName = matcher.group(1);
+            String accountNo = matcher.group(2);
+            String maskedAccountNo = accountNo.replaceAll("\\d(?=\\d{4})", "X");
+            // Replace the matched field with the masked account number
+            String maskedField = "\"" + fieldName + "\" : " + maskedAccountNo;
+            matcher.appendReplacement(sb, Matcher.quoteReplacement(maskedField));
+        }
+        
+        // Append remaining content
+        matcher.appendTail(sb);
+
+        // Write to output file
+        Files.write(outputFile.toPath(), sb.toString().getBytes(charset));
+    } catch (IOException e) {
+        System.err.println("Error processing file: " + inputFile.getName());
+        e.printStackTrace();
+    }
+}
