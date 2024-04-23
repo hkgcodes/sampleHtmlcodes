@@ -44,17 +44,27 @@ public class LogMasker {
 
     public static String maskFields(String line) {
         // Regular expressions to find account numbers
-        Pattern accountNoPattern = Pattern.compile("(\"account_no\"|\"accountFromAccountNo\"|\"payee_acc_no\"):\"(\\d{4})(\\d{4})\"");
-        Matcher matcher = accountNoPattern.matcher(line);
+        Pattern accountNoPatternJson = Pattern.compile("(\"account_no\"):\"(\\d{4})(\\d{4})\"");
+        Pattern accountNoPatternCSV = Pattern.compile("(?:accountFromAccountNo|payee_acc_no)\":\"(\\d{4})(\\d{4})\"");
+        Matcher matcherJson = accountNoPatternJson.matcher(line);
+        Matcher matcherCSV = accountNoPatternCSV.matcher(line);
 
-        // Loop through matches and mask the fields
+        // Mask account_no inside JSON
         StringBuffer maskedLine = new StringBuffer();
-        while (matcher.find()) {
-            String maskedValue = maskDigits(matcher.group(2));
-            String maskedField = matcher.group(1) + "\":\"" + maskedValue;
-            matcher.appendReplacement(maskedLine, maskedField);
+        while (matcherJson.find()) {
+            String maskedValue = maskDigits(matcherJson.group(2));
+            String maskedField = matcherJson.group(1) + "\":\"" + maskedValue;
+            matcherJson.appendReplacement(maskedLine, maskedField);
         }
-        matcher.appendTail(maskedLine);
+        matcherJson.appendTail(maskedLine);
+
+        // Mask account numbers in CSV format
+        maskedLine = new StringBuffer();
+        while (matcherCSV.find()) {
+            String maskedValue = maskDigits(matcherCSV.group(1));
+            matcherCSV.appendReplacement(maskedLine, matcherCSV.group().replace(matcherCSV.group(1), maskedValue));
+        }
+        matcherCSV.appendTail(maskedLine);
 
         return maskedLine.toString();
     }
