@@ -1,0 +1,95 @@
+import java.io.*;
+import java.util.regex.*;
+
+public class LogMasker {
+    public static void main(String[] args) {
+        // Set input and output directories
+        File inputDir = new File(System.getProperty("user.dir"), "LogMasker/INPUT");
+        File outputDir = new File(System.getProperty("user.dir"), "LogMasker/OUTPUT");
+
+        // Ensure output directory exists
+        if (!outputDir.exists()) {
+            outputDir.mkdir();
+        }
+
+        try {
+            // Get list of files in INPUT folder
+            File[] files = inputDir.listFiles();
+
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile()) {
+                        // Process each file
+                        maskLogFile(file, outputDir);
+                    }
+                }
+                System.out.println("Masking completed successfully.");
+            } else {
+                System.out.println("No files found in INPUT folder.");
+            }
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    private static void maskLogFile(File inputFile, File outputDir) throws IOException {
+        // Create output file with the same name as input file in output directory
+        File outputFile = new File(outputDir, inputFile.getName());
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Mask all fields
+                line = maskFields(line);
+                writer.write(line);
+                writer.newLine();
+            }
+        }
+    }
+
+    private static String maskFields(String line) {
+        // Define the pattern for each field
+        Pattern accountNoPattern = Pattern.compile("account_no\\s*:\\s*([^,]+),");
+        Pattern accountFromAccountNoPattern = Pattern.compile("accountFromAccountNo\\s*:\\s*([^,]+),");
+        Pattern payeeAccNoPattern = Pattern.compile("payee_acc_no\\s*:\\s*([^,]+),");
+
+        // Apply the patterns to the line
+        line = maskField(line, accountNoPattern);
+        line = maskField(line, accountFromAccountNoPattern);
+        line = maskField(line, payeeAccNoPattern);
+
+        return line;
+    }
+
+    private static String maskField(String line, Pattern pattern) {
+        Matcher matcher = pattern.matcher(line);
+        StringBuffer buffer = new StringBuffer();
+
+        // Mask the field if found
+        while (matcher.find()) {
+            String fieldValue = matcher.group(1).replaceAll("\\s", ""); // Remove spaces
+            int length = fieldValue.length();
+            String masked = maskDigits(fieldValue, length);
+            matcher.appendReplacement(buffer, masked + ",");
+        }
+        matcher.appendTail(buffer);
+
+        return buffer.toString();
+    }
+
+    private static String maskDigits(String fieldValue, int length) {
+        if (length <= 4) {
+            return fieldValue; // Do not mask if the length is 4 or less
+        } else {
+            // Mask all digits except the last 4
+            StringBuilder masked = new StringBuilder();
+            for (int i = 0; i < length - 4; i++) {
+                masked.append('*');
+            }
+            masked.append(fieldValue.substring(length - 4)); // Append the last 4 digits
+            return masked.toString();
+        }
+    }
+}
