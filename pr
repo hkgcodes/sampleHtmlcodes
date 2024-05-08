@@ -18,3 +18,15 @@
         window.addingNewRow = true;
     }
 </script>
+
+
+function handleAjaxComplete() {
+    var beforeRowCount = PF('products1').getRowCount();
+    PrimeFaces.current().ajax.addOnSuccess(function() {
+        var afterRowCount = PF('products1').getRowCount();
+        if (afterRowCount > beforeRowCount) {
+            PF('products1').getTbody().children('tr:last').find('.ui-row-editor-pencil').click();
+        }
+    });
+    window.addingNewRow = false;
+}
