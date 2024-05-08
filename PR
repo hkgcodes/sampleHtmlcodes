@@ -1,0 +1,1 @@
+    PrimeFaces.current().executeScript("PF('products1').getTbody().children('tr:last').find('.ui-row-editor-pencil').click();");
