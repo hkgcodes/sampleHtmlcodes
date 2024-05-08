@@ -1,1 +1,20 @@
         PrimeFaces.current().executeScript("PF('products1').getTbodyEl().children().eq(" + event.getRowIndex() + ").find('.ui-row-editor-pencil').click();");
+
+
+
+<p:ajaxStatus onstart="handleAjaxStart()" oncomplete="handleAjaxComplete()"/>
+
+
+
+<script>
+    function handleAjaxComplete() {
+        if (window.addingNewRow) {
+            PF('products1').getTbody().children('tr:last').find('.ui-row-editor-pencil').click();
+            window.addingNewRow = false;
+        }
+    }
+
+    function handleAjaxStart() {
+        window.addingNewRow = true;
+    }
+</script>
