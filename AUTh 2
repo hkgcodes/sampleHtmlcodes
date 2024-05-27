@@ -1,0 +1,18 @@
+module.exports = TestAuth; // Export the TestAuth class
+
+
+
+const TestAuth = require('./ldapAuth'); // Import the TestAuth class
+
+async function login() {
+  const testAuth = new TestAuth();
+  const userName = 'cn=user,dc=example,dc=com'; // Adjust to your LDAP structure
+  const password = 'password123';
+
+  try {
+    const result = await testAuth.connect(userName, password);
+    console.log(result); // This will print "Authenticated" or "incorrect password or username"
+  } catch (err) {
+    console.error('Error:', err); // This will print "Authentication failed" for other errors
+  }
+}
