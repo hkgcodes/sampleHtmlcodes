@@ -1,0 +1,36 @@
+const logIn = async (username, password) => {
+    // Dummy condition for the if block, replace with your actual condition
+    if (username === 'admin') {
+      console.log('Admin user, no LDAP authentication needed');
+      return 'Admin user logged in'; // Return a simple string for consistency
+    } else {
+      // LDAP authentication code in the else block
+      const url = 'ldap://test.test1.net:389'; // Ensure the port is correct and the server is accessible
+      const client = ldap.createClient({ url });
+
+      try {
+        await new Promise((resolve, reject) => {
+          client.bind(username, password, (err) => {
+            if (err) {
+              if (err.name === 'InvalidCredentialsError') {
+                console.log('Incorrect password or username');
+                resolve('Incorrect password or username');
+              } else {
+                console.error('Authentication error:', err);
+                reject(new Error('Authentication failed'));
+              }
+            } else {
+              console.log('Authenticated');
+              resolve('Authenticated');
+            }
+          });
+        });
+      } finally {
+        client.unbind((unbindErr) => {
+          if (unbindErr) {
+            console.error('Failed to unbind client:', unbindErr);
+          }
+        });
+      }
+    }
+  };
