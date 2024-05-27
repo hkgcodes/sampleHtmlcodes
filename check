@@ -1,0 +1,71 @@
+import React from 'react';
+const ldap = require('ldapjs'); // Import ldapjs library
+
+const Logn = () => {
+  const logIn = async (username, password) => {
+    // Dummy condition for the if block, replace with your actual condition
+    if (username === 'admin') {
+      console.log('Admin user, no LDAP authentication needed');
+    } else {
+      // LDAP authentication code in the else block
+      const url = 'ldap://test.test1.net:389'; // Ensure the port is correct and the server is accessible
+      const client = ldap.createClient({ url });
+
+      return new Promise((resolve, reject) => {
+        client.bind(username, password, (err) => {
+          if (err) {
+            if (err.name === 'InvalidCredentialsError') {
+              console.log('Incorrect password or username');
+              resolve('Incorrect password or username');
+            } else {
+              console.error('Authentication error:', err);
+              reject('Authentication failed');
+            }
+          } else {
+            console.log('Authenticated');
+            resolve('Authenticated');
+          }
+
+          client.unbind((unbindErr) => {
+            if (unbindErr) {
+              console.error('Failed to unbind client:', unbindErr);
+            }
+          });
+        });
+      });
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const username = e.target.username.value;
+    const password = e.target.password.value;
+    try {
+      const result = await logIn(username, password);
+      console.log(result); // Handle the authentication result here
+      // Further logic based on authentication result (e.g., redirect to another page)
+    } catch (error) {
+      console.error('Error during LDAP authentication:', error);
+      // Handle the error (e.g., display an error message to the user)
+    }
+  };
+
+  return (
+    <div>
+      <h2>Login</h2>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Username:</label>
+          <input type="text" name="username" required />
+        </div>
+        <div>
+          <label>Password:</label>
+          <input type="password" name="password" required />
+        </div>
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  );
+};
+
+export default Logn;
