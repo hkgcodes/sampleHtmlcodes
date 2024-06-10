@@ -1,0 +1,132 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+
+public class DatabaseOperations {
+    private static final Logger LOGGER = Logger.getLogger(DatabaseOperations.class.getName());
+
+    public static void main(String[] args) {
+        DatabaseOperations operations = new DatabaseOperations();
+        int rowsInsertedTable1 = 0;
+        int rowsInsertedTable2 = 0;
+        int rowsInsertedTable3 = 0;
+        
+        try (Connection conn = operations.createConnection()) {
+            if (conn != null) {
+                // Check if a particular ID exists in Table1
+                String idToCheck = "some_id"; // Replace with actual ID to check
+                if (operations.checkIfIdExists(conn, idToCheck)) {
+                    operations.updateFlow(conn);
+                } else {
+                    if ((rowsInsertedTable1 = operations.insertIntoTable1(conn)) >= 0) {
+                        if ((rowsInsertedTable2 = operations.insertIntoTable2(conn)) >= 0) {
+                            if ((rowsInsertedTable3 = operations.insertIntoTable3(conn)) >= 0) {
+                                JOptionPane.showMessageDialog(null, 
+                                    "Success!\nRows inserted:\nTable1: " + rowsInsertedTable1 + "\nTable2: " + rowsInsertedTable2 + "\nTable3: " + rowsInsertedTable3);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error in database operations", e);
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // Method to create a JDBC connection
+    public Connection createConnection() {
+        Connection conn = null;
+        try {
+            // Replace with your database URL, user, and password
+            String url = "jdbc:mysql://localhost:3306/yourdatabase";
+            String user = "yourusername";
+            String password = "yourpassword";
+            
+            conn = DriverManager.getConnection(url, user, password);
+            LOGGER.info("Connection established successfully.");
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to create connection", e);
+            JOptionPane.showMessageDialog(null, "Failed to create connection: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return conn;
+    }
+
+    // Method to check if an ID exists in Table1
+    public boolean checkIfIdExists(Connection conn, String id) {
+        String sql = "SELECT COUNT(*) FROM Table1 WHERE id = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, id);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    LOGGER.info("ID " + id + " exists in Table1.");
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to check if ID exists in Table1", e);
+            JOptionPane.showMessageDialog(null, "Failed to check if ID exists in Table1: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return false;
+    }
+
+    // Dummy method for the update flow
+    public void updateFlow(Connection conn) {
+        JOptionPane.showMessageDialog(null, "Proceeding with update flow.");
+        LOGGER.info("Update flow executed.");
+        // Implement your update logic here
+    }
+
+    // Method to insert data into Table1
+    public int insertIntoTable1(Connection conn) {
+        String sql = "INSERT INTO Table1 (column1, column2) VALUES (?, ?)";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, "value1");
+            pstmt.setString(2, "value2");
+            int rows = pstmt.executeUpdate();
+            LOGGER.info(rows + " rows inserted into Table1.");
+            return rows;
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to insert into Table1", e);
+            JOptionPane.showMessageDialog(null, "Failed to insert into Table1: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return -1;
+        }
+    }
+
+    // Method to insert data into Table2
+    public int insertIntoTable2(Connection conn) {
+        String sql = "INSERT INTO Table2 (column1, column2) VALUES (?, ?)";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, "value1");
+            pstmt.setString(2, "value2");
+            int rows = pstmt.executeUpdate();
+            LOGGER.info(rows + " rows inserted into Table2.");
+            return rows;
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to insert into Table2", e);
+            JOptionPane.showMessageDialog(null, "Failed to insert into Table2: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return -1;
+        }
+    }
+
+    // Method to insert data into Table3
+    public int insertIntoTable3(Connection conn) {
+        String sql = "INSERT INTO Table3 (column1, column2) VALUES (?, ?)";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, "value1");
+            pstmt.setString(2, "value2");
+            int rows = pstmt.executeUpdate();
+            LOGGER.info(rows + " rows inserted into Table3.");
+            return rows;
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to insert into Table3", e);
+            JOptionPane.showMessageDialog(null, "Failed to insert into Table3: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return -1;
+        }
+    }
+}
