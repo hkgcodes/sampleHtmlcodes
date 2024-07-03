@@ -1,0 +1,307 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
+
+import javax.mail.*;
+import javax.mail.internet.*;
+
+public class ReportGenerator extends JFrame {
+    private JDatePickerImpl startDatePicker;
+    private JDatePickerImpl endDatePicker;
+    private JButton generateButton;
+    private JButton sendMailButton;
+    private JPanel emailPanel;
+    private Map<String, JCheckBox> emailCheckboxes = new HashMap<>();
+    private String reportText;
+
+    public ReportGenerator() {
+        setTitle("Report Generator");
+        setSize(400, 400);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new FlowLayout());
+
+        // Start Date Picker
+        UtilDateModel startModel = new UtilDateModel();
+        JDatePanelImpl startDatePanel = new JDatePanelImpl(startModel);
+        startDatePicker = new JDatePickerImpl(startDatePanel);
+        add(new JLabel("Start Date:"));
+        add(startDatePicker);
+
+        // End Date Picker
+        UtilDateModel endModel = new UtilDateModel();
+        JDatePanelImpl endDatePanel = new JDatePanelImpl(endModel);
+        endDatePicker = new JDatePickerImpl(endDatePanel);
+        add(new JLabel("End Date:"));
+        add(endDatePicker);
+
+        generateButton = new JButton("Generate Report");
+        add(generateButton);
+
+        emailPanel = new JPanel();
+        emailPanel.setLayout(new BoxLayout(emailPanel, BoxLayout.Y_AXIS));
+        add(emailPanel);
+
+        sendMailButton = new JButton("Send Mail");
+        add(sendMailButton);
+
+        generateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new Thread(() -> generateReport()).start();
+            }
+        });
+
+        sendMailButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                sendEmails();
+            }
+        });
+
+        setVisible(true);
+    }
+
+    private void generateReport() {
+        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this, "Generating report..."));
+
+        // Simulate report generation
+        try {
+            Thread.sleep(2000); // Simulate long running task
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Read Excel and generate report
+        File excelFile = chooseFile();
+        if (excelFile != null) {
+            reportText = generateReportFromExcel(excelFile);
+
+            SwingUtilities.invokeLater(() -> {
+                emailPanel.removeAll();
+                emailCheckboxes.clear();
+
+                // Add email checkboxes
+                for (String email : getEmailsFromExcel(excelFile)) {
+                    JCheckBox checkBox = new JCheckBox(email);
+                    checkBox.setSelected(true);
+                    emailCheckboxes.put(email, checkBox);
+                    emailPanel.add(checkBox);
+                }
+
+                emailPanel.revalidate();
+                emailPanel.repaint();
+                JOptionPane.showMessageDialog(this, "Report generated:\n" + reportText);
+            });
+        }
+    }
+
+    private File chooseFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        int returnValue = fileChooser.showOpenDialog(this);
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            return fileChooser.getSelectedFile();
+        }
+        return null;
+    }
+
+    private String generateReportFromExcel(File file) {
+        StringBuilder report = new StringBuilder();
+        Map<String, Map<String, Integer>> groupCommits = new HashMap<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length >= 3) {
+                    String groupId = parts[0];
+                    String groupName = parts[1];
+                    String email = parts[2];
+
+                    // GitLab API call
+                    List<String> commits = getCommitsFromGitLab(groupId);
+
+                    // Count commits
+                    Map<String, Integer> userCommits = groupCommits.getOrDefault(groupName, new HashMap<>());
+                    for (String commit : commits) {
+                        userCommits.put(commit, userCommits.getOrDefault(commit, 0) + 1);
+                    }
+                    groupCommits.put(groupName, userCommits);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Format report
+        for (Map.Entry<String, Map<String, Integer>> entry : groupCommits.entrySet()) {
+            report.append(entry.getKey()).append(":\n");
+            for (Map.Entry<String, Integer> userCommit : entry.getValue().entrySet()) {
+                report.append(userCommit.getKey()).append(" : ").append(userCommit.getValue()).append(" Commits\n");
+            }
+        }
+
+        return report.toString();
+    }
+
+    private List<String> getEmailsFromExcel(File file) {
+        List<String> emails = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length >= 3) {
+                    emails.add(parts[2]);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return emails;
+    }
+
+    private List<String> getCommitsFromGitLab(String groupId) {
+        List<String> commits = new ArrayList<>();
+        try {
+            String url = "https://gitlab.com/api/v4/groups/" + groupId + "/projects";
+            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("PRIVATE-TOKEN", "YOUR_PRIVATE_TOKEN"); // Replace with your GitLab private token
+
+            if (conn.getResponseCode() == 200) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                String inputLine;
+                StringBuilder response = new StringBuilder();
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                // Parse response and extract project IDs
+                List<String> projectIds = extractProjectIds(response.toString());
+
+                // Get commits for each project
+                for (String projectId : projectIds) {
+                    commits.addAll(getCommitsForProject(projectId));
+                }
+            } else {
+                System.out.println("GET request failed: " + conn.getResponseCode());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return commits;
+    }
+
+    private List<String> extractProjectIds(String jsonResponse) {
+        // Simple extraction logic, replace with proper JSON parsing
+        List<String> projectIds = new ArrayList<>();
+        String[] projects = jsonResponse.split("id\":");
+        for (int i = 1; i < projects.length; i++) {
+            String projectId = projects[i].split(",")[0].trim();
+            projectIds.add(projectId);
+        }
+        return projectIds;
+    }
+
+    private List<String> getCommitsForProject(String projectId) {
+        List<String> commits = new ArrayList<>();
+        try {
+            String url = "https://gitlab.com/api/v4/projects/" + projectId + "/repository/commits";
+            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("PRIVATE-TOKEN", "YOUR_PRIVATE_TOKEN"); // Replace with your GitLab private token
+
+            if (conn.getResponseCode() == 200) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                String inputLine;
+                StringBuilder response = new StringBuilder();
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                // Parse response and extract commit author names
+                commits.addAll(extractCommitAuthors(response.toString()));
+            } else {
+                System.out.println("GET request failed: " + conn.getResponseCode());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return commits;
+    }
+
+    private List<String> extractCommitAuthors(String jsonResponse) {
+        // Simple extraction logic, replace with proper JSON parsing
+        List<String> authors = new ArrayList<>();
+        String[] commits = jsonResponse.split("author_name\":\"");
+        for (int i = 1; i < commits.length; i++) {
+            String author = commits[i].split("\"")[0].trim();
+            authors.add(author);
+        }
+        return authors;
+    }
+
+    private void sendEmails() {
+        List<String> recipients = emailCheckboxes.entrySet().stream()
+                .filter(entry -> entry.getValue().isSelected())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        String subject = "Commit Report";
+        String body = reportText;
+
+        for (String recipient : recipients) {
+            sendEmail(recipient, subject, body);
+        }
+
+        JOptionPane.showMessageDialog(this, "Emails sent successfully!");
+    }
+
+    private void sendEmail(String to, String subject, String body) {
+        String from = "your_email@example.com"; // Replace with your email
+        String host = "smtp.example.com"; // Replace with your SMTP server
+
+        Properties properties = System.getProperties();
+        properties.setProperty("mail.smtp.host", host);
+        properties.setProperty("mail.smtp.port", "587");
+        properties.setProperty("mail.smtp.auth", "true");
+        properties.setProperty("mail.smtp.starttls.enable", "true");
+
+        Session session = Session.getDefaultInstance(properties, new javax.mail.Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication("your_email@example.com", "your_password"); // Replace with your email and password
+            }
+        });
+
+        try {
+            MimeMessage message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(from));
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+            message.setSubject(subject);
+            message.setText(body);
+
+            Transport.send(message);
+        } catch (MessagingException mex) {
+            mex.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        new ReportGenerator();
+    }
+}
