@@ -1,0 +1,285 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class DateSelectionApp {
+    private static final String BASE_URL = "https://gitlab.example.com/api/v4/";
+    private static final String PRIVATE_TOKEN = "your_gitlab_personal_access_token";
+
+    private static List<String> groupCodes = new ArrayList<>();
+    private static JTextArea resultArea;
+    private static JProgressBar progressBar;
+
+    public static void main(String[] args) {
+        // Load group codes from CSV file
+        loadGroupCodesFromCSV("dataload.csv");
+
+        // Create the main frame
+        JFrame mainFrame = new JFrame("Date Selection");
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.setSize(500, 300);
+        mainFrame.setLayout(new BorderLayout());
+
+        // Panel for dropdown and button
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new FlowLayout());
+
+        // Create dropdown menu
+        String[] options = {"Last 7 days", "Last 30 days"};
+        JComboBox<String> dropdown = new JComboBox<>(options);
+
+        // Create generate button
+        JButton generateButton = new JButton("Generate");
+
+        // Add components to top panel
+        topPanel.add(new JLabel("Select an option:"));
+        topPanel.add(dropdown);
+        topPanel.add(generateButton);
+
+        // Add top panel to main frame
+        mainFrame.add(topPanel, BorderLayout.NORTH);
+
+        // Text area for displaying results
+        resultArea = new JTextArea();
+        resultArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(resultArea);
+        mainFrame.add(scrollPane, BorderLayout.CENTER);
+
+        // Progress bar
+        progressBar = new JProgressBar();
+        progressBar.setStringPainted(true); // Show progress percentage
+        mainFrame.add(progressBar, BorderLayout.SOUTH);
+
+        // Add action listener to generate button
+        generateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                resultArea.setText(""); // Clear previous results
+
+                // Get the selected option
+                String selectedOption = (String) dropdown.getSelectedItem();
+
+                // Check if selected option is "Last 30 days"
+                if ("Last 30 days".equals(selectedOption)) {
+                    // Fetch and display commit information with progress
+                    progressBar.setValue(0); // Reset progress bar
+                    progressBar.setMaximum(groupCodes.size()); // Set max value for progress bar
+                    fetchAndDisplayCommitInfoWithProgress();
+                } else {
+                    resultArea.append("No data for selected option");
+                }
+            }
+        });
+
+        // Display the main frame
+        mainFrame.setVisible(true);
+    }
+
+    // Method to load group codes from CSV file
+    private static void loadGroupCodesFromCSV(String csvFile) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(csvFile))) {
+            String line;
+            // Skip header line if present
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                // Split CSV line by any whitespace (assuming group code is first element in row)
+                String[] tokens = line.trim().split("\\s+");
+                if (tokens.length > 0) {
+                    // Add group code (first element) to the list
+                    groupCodes.add(tokens[0]);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Method to fetch and display commit information for all group codes with progress
+    private static void fetchAndDisplayCommitInfoWithProgress() {
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                for (int i = 0; i < groupCodes.size(); i++) {
+                    String groupCode = groupCodes.get(i);
+                    try {
+                        String projectsResponse = getProjectsForGroup(groupCode);
+                        processProjects(projectsResponse);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    // Update progress bar
+                    int progress = (int) (((double) (i + 1) / groupCodes.size()) * 100);
+                    setProgress(progress);
+                }
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                progressBar.setValue(100); // Ensure progress bar reaches 100%
+            }
+        }.execute();
+    }
+
+    // Method to fetch projects under a specific group
+    private static String getProjectsForGroup(String groupCode) throws IOException {
+        String url = BASE_URL + "groups/" + groupCode + "/projects";
+        HttpURLConnection conn = null;
+        StringBuilder response = new StringBuilder();
+        try {
+            URL urlObj = new URL(url);
+            conn = (HttpURLConnection) urlObj.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Private-Token", PRIVATE_TOKEN);
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                String line;
+                while ((line = in.readLine()) != null) {
+                    response.append(line);
+                }
+                in.close();
+            } else {
+                throw new IOException("HTTP error code: " + responseCode);
+            }
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+        return response.toString();
+    }
+
+    // Method to process each project and fetch commits
+    private static void processProjects(String projectsResponse) {
+        try {
+            List<Map<String, String>> projects = parseProjectsResponse(projectsResponse);
+            for (Map<String, String> project : projects) {
+                String groupName = project.get("name");
+                String groupCode = project.get("path_with_namespace");
+
+                String commitsResponse = getCommitsForProject(groupCode);
+                processCommits(commitsResponse, groupName, groupCode);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Method to fetch commits for a specific project
+    private static String getCommitsForProject(String projectCode) throws IOException {
+        String url = BASE_URL + "projects/" + projectCode + "/repository/commits";
+        HttpURLConnection conn = null;
+        StringBuilder response = new StringBuilder();
+        try {
+            URL urlObj = new URL(url);
+            conn = (HttpURLConnection) urlObj.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Private-Token", PRIVATE_TOKEN);
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                String line;
+                while ((line = in.readLine()) != null) {
+                    response.append(line);
+                }
+                in.close();
+            } else {
+                throw new IOException("HTTP error code: " + responseCode);
+            }
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+        return response.toString();
+    }
+
+    // Method to process commits and collect commit details
+    private static void processCommits(String commitsResponse, String groupName, String groupCode) {
+        try {
+            List<Map<String, String>> commits = parseCommitsResponse(commitsResponse);
+            Map<String, Integer> commitCountMap = new HashMap<>();
+            for (Map<String, String> commit : commits) {
+                String authorName = commit.get("author_name");
+                commitCountMap.put(authorName, commitCountMap.getOrDefault(authorName, 0) + 1);
+            }
+            // Append results to resultArea
+            resultArea.append("Group Name: " + groupName + " - Group Code: " + groupCode + "\n");
+            for (Map.Entry<String, Integer> entry : commitCountMap.entrySet()) {
+                resultArea.append(entry.getKey() + " - " + entry.getValue() + " commits\n");
+            }
+            resultArea.append("\n");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Method to parse projects response
+    private static List<Map<String, String>> parseProjectsResponse(String response) {
+        List<Map<String, String>> projects = new ArrayList<>();
+        int i = 0;
+        while (i < response.length()) {
+            if (response.charAt(i) == '{') {
+                Map<String, String> project = new HashMap<>();
+                i = parseJSONObject(response, i, project);
+                projects.add(project);
+            } else {
+                i++;
+            }
+        }
+        return projects;
+    }
+
+    // Method to parse commits response
+    private static List<Map<String, String>> parseCommitsResponse(String response) {
+        List<Map<String, String>> commits = new ArrayList<>();
+        int i = 0;
+        while (i < response.length()) {
+            if (response.charAt(i) == '{') {
+                Map<String, String> commit = new HashMap<>();
+                i = parseJSONObject(response, i, commit);
+                commits.add(commit);
+            } else {
+                i++;
+            }
+        }
+        return commits;
+    }
+
+    // Method to parse JSON object
+    private static int parseJSONObject(String response, int start, Map<String, String> map) {
+        int i = start;
+        while (i < response.length() && response.charAt(i) != '}') {
+            if (response.charAt(i) == '"') {
+                int keyStart = i + 1;
+                int keyEnd = response.indexOf('"', keyStart);
+                String key = response.substring(keyStart, keyEnd);
+
+                int colon = response.indexOf(':', keyEnd);
+                int valueStart = response.indexOf('"', colon) + 1;
+                int valueEnd = response.indexOf('"', valueStart);
+                String value = response.substring(valueStart, valueEnd);
+
+                map.put(key, value);
+                i = valueEnd + 1;
+            } else {
+                i++;
+            }
+        }
+        return i + 1;
+    }
+}
