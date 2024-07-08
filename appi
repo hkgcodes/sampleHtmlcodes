@@ -1,0 +1,47 @@
+package com.example.swingapp;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Component
+public class GitLabClient {
+    private static final String GITLAB_API_URL = "https://gitlab.com/api/v4";
+    private static final String PERSONAL_ACCESS_TOKEN = "YOUR_PERSONAL_ACCESS_TOKEN";
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    public List<Map<String, Object>> getProjects(String groupId) throws URISyntaxException {
+        String url = GITLAB_API_URL + "/groups/" + groupId + "/projects";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(PERSONAL_ACCESS_TOKEN);
+        RequestEntity<Void> request = new RequestEntity<>(headers, HttpMethod.GET, new URI(url));
+        ResponseEntity<List> response = restTemplate.exchange(request, List.class);
+        return response.getBody();
+    }
+
+    public List<Map<String, Object>> getCommits(String projectId, String since) throws URISyntaxException {
+        String url = GITLAB_API_URL + "/projects/" + projectId + "/repository/commits?since=" + since;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(PERSONAL_ACCESS_TOKEN);
+        RequestEntity<Void> request = new RequestEntity<>(headers, HttpMethod.GET, new URI(url));
+        ResponseEntity<List> response = restTemplate.exchange(request, List.class);
+        return response.getBody();
+    }
+    
+    public String calculateSinceDate(int days) {
+        LocalDate date = LocalDate.now().minusDays(days);
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
+        return date.format(formatter) + "T00:00:00Z";
+    }
+}
