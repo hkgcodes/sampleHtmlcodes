@@ -1,0 +1,49 @@
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
+public class GitLabAPIClient {
+
+    private static final String PRIVATE_TOKEN = "YOUR_PRIVATE_TOKEN";
+    private static final String GITLAB_API_URL = "https://gitlab.com/api/v4/projects/";
+
+    public static void main(String[] args) {
+        String projectId = "YOUR_PROJECT_ID";
+        try {
+            String commits = getCommits(projectId, 30);
+            System.out.println(commits);
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String getCommits(String projectId, int days) throws IOException, InterruptedException {
+        HttpClient client = HttpClient.newHttpClient();
+
+        // Calculate the date range
+        LocalDate today = LocalDate.now();
+        LocalDate pastDate = today.minusDays(days);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'00:00:00'Z'");
+        String since = pastDate.format(formatter);
+        String until = today.format(formatter);
+
+        String uri = String.format("%s%s/repository/commits?since=%s&until=%s&per_page=100", 
+                                    GITLAB_API_URL, projectId, since, until);
+
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(uri))
+            .header("PRIVATE-TOKEN", PRIVATE_TOKEN)
+            .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() == 200) {
+            return response.body();
+        } else {
+            throw new RuntimeException("Failed to fetch commits: " + response.statusCode());
+        }
+    }
+}
