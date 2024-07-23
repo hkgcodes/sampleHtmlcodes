@@ -1,0 +1,33 @@
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.ZoneOffset;
+
+public class DateUtil {
+
+    public static String getCurrentDateMinusDays(int days) {
+        // Get the current date and time
+        LocalDateTime currentDate = LocalDateTime.now();
+        LocalDateTime newDate;
+
+        // If days is 0, use the current date
+        if (days == 0) {
+            newDate = currentDate;
+        } else {
+            // Subtract the specified number of days
+            newDate = currentDate.minusDays(days);
+        }
+
+        // Format the date to the specified format
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        // Convert to UTC time
+        String formattedDate = newDate.atOffset(ZoneOffset.UTC).format(formatter);
+        return formattedDate;
+    }
+
+    public static void main(String[] args) {
+        // Example usage
+        int daysToSubtract = 0; // Change this to test different values
+        String result = getCurrentDateMinusDays(daysToSubtract);
+        System.out.println("Date minus " + daysToSubtract + " day(s): " + result);
+    }
+}
