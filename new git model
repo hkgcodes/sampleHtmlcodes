@@ -1,0 +1,158 @@
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Event {
+    private long id;
+    private String title;
+    private long projectId;
+    private String actionName;
+    private long targetId;
+    private long targetIid;
+    private String targetType;
+    private long authorId;
+    private String targetTitle;
+    private String createdAt;
+    private Author author;
+    private String authorUsername;
+    private boolean imported;
+    private String importedFrom;
+
+    // Getters and Setters
+
+    @JsonProperty("project_id")
+    public long getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(long projectId) {
+        this.projectId = projectId;
+    }
+
+    @JsonProperty("action_name")
+    public String getActionName() {
+        return actionName;
+    }
+
+    public void setActionName(String actionName) {
+        this.actionName = actionName;
+    }
+
+    @JsonProperty("target_id")
+    public long getTargetId() {
+        return targetId;
+    }
+
+    public void setTargetId(long targetId) {
+        this.targetId = targetId;
+    }
+
+    @JsonProperty("target_iid")
+    public long getTargetIid() {
+        return targetIid;
+    }
+
+    public void setTargetIid(long targetIid) {
+        this.targetIid = targetIid;
+    }
+
+    @JsonProperty("target_type")
+    public String getTargetType() {
+        return targetType;
+    }
+
+    public void setTargetType(String targetType) {
+        this.targetType = targetType;
+    }
+
+    @JsonProperty("author_id")
+    public long getAuthorId() {
+        return authorId;
+    }
+
+    public void setAuthorId(long authorId) {
+        this.authorId = authorId;
+    }
+
+    @JsonProperty("target_title")
+    public String getTargetTitle() {
+        return targetTitle;
+    }
+
+    public void setTargetTitle(String targetTitle) {
+        this.targetTitle = targetTitle;
+    }
+
+    @JsonProperty("created_at")
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Author getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(Author author) {
+        this.author = author;
+    }
+
+    @JsonProperty("author_username")
+    public String getAuthorUsername() {
+        return authorUsername;
+    }
+
+    public void setAuthorUsername(String authorUsername) {
+        this.authorUsername = authorUsername;
+    }
+
+    public boolean isImported() {
+        return imported;
+    }
+
+    public void setImported(boolean imported) {
+        this.imported = imported;
+    }
+
+    @JsonProperty("imported_from")
+    public String getImportedFrom() {
+        return importedFrom;
+    }
+
+    public void setImportedFrom(String importedFrom) {
+        this.importedFrom = importedFrom;
+    }
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Author {
+    private String name;
+    private String username;
+    private long id;
+    private String state;
+    private String avatarUrl;
+    private String webUrl;
+
+    // Getters and Setters
+
+    @JsonProperty("avatar_url")
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    @JsonProperty("web_url")
+    public String getWebUrl() {
+        return webUrl;
+    }
+
+    public void setWebUrl(String webUrl) {
+        this.webUrl = webUrl;
+    }
+}
