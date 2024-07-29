@@ -1,0 +1,60 @@
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+@Service
+public class GitLabClient {
+
+    @Value("${gitlab.api.url}")
+    private String gitLabApiUrl;
+
+    @Value("${gitlab.api.token}")
+    private String gitLabApiToken;
+
+    private final RestTemplate restTemplate;
+
+    public GitLabClient(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    public List<Event> getEvents() {
+        List<Event> events = new ArrayList<>();
+        int page = 1;
+        List<Event> currentBatch;
+
+        do {
+            URI uri = UriComponentsBuilder.fromHttpUrl(gitLabApiUrl + "/events")
+                    .queryParam("per_page", 100)
+                    .queryParam("page", page)
+                    .build()
+                    .toUri();
+
+            currentBatch = fetchEvents(uri);
+            events.addAll(currentBatch);
+            page++;
+        } while (!currentBatch.isEmpty());
+
+        return events;
+    }
+
+    private List<Event> fetchEvents(URI uri) {
+        try {
+            Event[] events = restTemplate.getForObject(uri, Event[].class);
+            if (events != null) {
+                return List.of(events);
+            } else {
+                return Collections.emptyList();
+            }
+        } catch (Exception e) {
+            // Handle exceptions
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+}
