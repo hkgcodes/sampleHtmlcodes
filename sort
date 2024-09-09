@@ -1,0 +1,37 @@
+ // Custom comparator for the 'category' column
+    public Comparator<Vehicle> categoryComparator() {
+        return (v1, v2) -> {
+            String cat1 = v1.getCategory();
+            String cat2 = v2.getCategory();
+
+            boolean cat1StartsWithCAT = cat1.startsWith("CAT");
+            boolean cat2StartsWithCAT = cat2.startsWith("CAT");
+
+            if (cat1StartsWithCAT && cat2StartsWithCAT) {
+                // If both start with 'CAT', compare numerically after 'CAT'
+                return extractNumericPart(cat1).compareTo(extractNumericPart(cat2));
+            } else if (cat1StartsWithCAT) {
+                // CAT1 comes before anything not starting with 'CAT'
+                return -1;
+            } else if (cat2StartsWithCAT) {
+                // Anything not starting with 'CAT' comes after CAT
+                return 1;
+            } else {
+                // Neither start with 'CAT', do a normal string comparison
+                return cat1.compareTo(cat2);
+            }
+        };
+    }
+
+    // Extracts the numeric part after 'CAT'
+    private Integer extractNumericPart(String category) {
+        try {
+            return Integer.parseInt(category.substring(3)); // Extract number after 'CAT'
+        } catch (NumberFormatException | IndexOutOfBoundsException e) {
+            return Integer.MAX_VALUE; // Non-CAT categories or invalid format are sorted later
+        }
+    }
+}
+
+
+            <f:attribute name="sortFunction" value="#{vehicleBean.categoryComparator}" />
