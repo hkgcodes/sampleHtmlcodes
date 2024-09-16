@@ -1,0 +1,7 @@
+ <script type="text/javascript">
+        // Disable the back button by manipulating the browser history
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function () {
+            window.history.pushState(null, null, window.location.href);
+        };
+    </script>
