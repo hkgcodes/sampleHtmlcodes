@@ -1,0 +1,66 @@
+import javax.servlet.*;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+public class NoCacheFilter implements Filter {
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+    }
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        httpResponse.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
+        httpResponse.setHeader("Pragma", "no-cache"); // HTTP 1.0
+        httpResponse.setDateHeader("Expires", 0); // Proxies
+        chain.doFilter(request, response);
+    }
+
+    @Override
+    public void destroy() {
+    }
+}
+
+
+
+
+<filter>
+    <filter-name>NoCacheFilter</filter-name>
+    <filter-class>NoCacheFilter</filter-class>
+</filter>
+
+<filter-mapping>
+    <filter-name>NoCacheFilter</filter-name>
+    <url-pattern>/success.xhtml</url-pattern>
+</filter-mapping>
+
+
+
+
+  <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+<h:head>
+    <title>Success Page</title>
+    <script type="text/javascript">
+        // Override the back button
+        window.history.pushState(null, "", window.location.href);
+        window.onpopstate = function() {
+            window.history.pushState(null, "", window.location.href);
+        };
+
+        // Disable specific keyboard shortcuts like Alt+Left Arrow, Backspace
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Backspace' || (event.altKey && event.key === 'ArrowLeft')) {
+                event.preventDefault();
+            }
+        });
+    </script>
+</h:head>
+<h:body>
+    <h1>Success Page</h1>
+    <h:outputText value="You have successfully completed the task." />
+</h:body>
+</html>
