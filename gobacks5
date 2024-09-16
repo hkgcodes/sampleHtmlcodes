@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+<h:head>
+    <title>Success Page</title>
+    <script type="text/javascript">
+        // Prevent the back button from navigating back
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function() {
+            window.history.go(1);  // Forces the browser to move forward in the history stack
+        };
+
+        // Disable specific keyboard shortcuts like Alt+Left Arrow and Backspace
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Backspace' || (event.altKey && event.key === 'ArrowLeft')) {
+                event.preventDefault();
+            }
+        });
+    </script>
+</h:head>
+<h:body>
+    <h1>Success Page</h1>
+    <h:outputText value="You have successfully completed the task." />
+</h:body>
+</html>
