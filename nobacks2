@@ -1,0 +1,21 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+<h:head>
+    <title>Success</title>
+    <script type="text/javascript">
+        window.onload = function () {
+            // Push an initial state into the history stack
+            window.history.pushState(null, null, window.location.href);
+
+            // Listen to the back/forward buttons, and when triggered, move them back to the same page
+            window.onpopstate = function () {
+                window.history.pushState(null, null, window.location.href);
+            };
+        };
+    </script>
+</h:head>
+<h:body>
+    <h1>Successfull</h1>
+    <h:outputText value="Operation completed successfully."/>
+</h:body>
+</html>
