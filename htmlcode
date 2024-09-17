@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+<h:head>
+    <title>First Page</title>
+</h:head>
+<h:body>
+    <h:form>
+        <h:commandLink value="Go to Second Page" action="secondPage" />
+    </h:form>
+</h:body>
+</html>
+
+
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+<h:head>
+    <title>Second Page</title>
+    
+    <script type="text/javascript">
+        // This script will block the back button navigation by using the history API
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function() {
+            window.history.pushState(null, null, window.location.href);
+        };
+    </script>
+</h:head>
+<h:body>
+    <h:form>
+        <h:outputText value="You are on the second page." />
+    </h:form>
+</h:body>
+</html>
