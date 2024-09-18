@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prevent Back Navigation</title>
+  <style>
+    /* Styles for the modal to look like an alert */
+    #blockModal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5); /* Dimmed background */
+    }
+
+    .modal-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-content h2 {
+      margin: 0 0 10px;
+    }
+  </style>
+
+  <script type="text/javascript">
+    (function() {
+      // Function to push a new state into the history stack
+      function preventBack() {
+        window.history.pushState(null, "", window.location.href);
+      }
+
+      // Prevent back navigation on page load
+      window.onload = function () {
+        preventBack();
+      };
+
+      // Handle the popstate event to block back navigation
+      window.onpopstate = function () {
+        // Re-push the state immediately to block back navigation
+        preventBack();
+
+        // Show the custom alert box
+        document.getElementById("blockModal").style.display = "block";
+      };
+    })();
+  </script>
+</head>
+<body>
+  <h1>Welcome to the Page</h1>
+  <p>Try pressing the back button in the browser!</p>
+
+  <!-- Custom Modal for blocking back navigation -->
+  <div id="blockModal">
+    <div class="modal-content">
+      <h2>Can't go back</h2>
+      <p>You are not allowed to go back from this page!</p>
+    </div>
+  </div>
+</body>
+</html>
