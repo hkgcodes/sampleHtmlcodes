@@ -1,0 +1,69 @@
+package com.example.listener;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.sql.DataSource;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Properties;
+
+@ApplicationScoped
+public class StartupListener {
+
+    @Inject
+    private DataSource dataSource; // Ensure you have the correct DataSource configuration in WebSphere Liberty
+
+    private final String QUERY = "SELECT value_column FROM your_table WHERE condition_column = ?";
+
+    @PostConstruct
+    public void onStartup() {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(QUERY)) {
+
+            // Set parameters in the query if needed
+            statement.setString(1, "your_condition");
+
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                String value = resultSet.getString("value_column");
+                writeToPropertiesFile(value);
+            }
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @PreDestroy
+    public void onShutdown() {
+        // Any cleanup logic before server shuts down
+    }
+
+    private void writeToPropertiesFile(String value) throws IOException {
+        // Define the path to src/main/resources/dbschema.properties
+        File propertiesFile = new File("src/main/resources/dbschema.properties");
+
+        // Check if the file exists, if not, create it
+        if (!propertiesFile.exists()) {
+            propertiesFile.getParentFile().mkdirs(); // Ensure the directories exist
+            propertiesFile.createNewFile();          // Create the file if it does not exist
+            System.out.println("File created: " + propertiesFile.getAbsolutePath());
+        } else {
+            System.out.println("File exists, will overwrite: " + propertiesFile.getAbsolutePath());
+        }
+
+        // Write the dbSchema value to the properties file
+        Properties properties = new Properties();
+        properties.setProperty("dbSchema", value);
+
+        try (FileOutputStream out = new FileOutputStream(propertiesFile)) {
+            properties.store(out, "DB Schema Value");
+        }
+    }
+}
