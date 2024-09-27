@@ -1,0 +1,52 @@
+private static String loadSchemaFromPropertiesFile() {
+        Properties properties = new Properties();
+        String schema = null;
+
+        try {
+            // Get the directory where this class is located
+            String classLocation = DBConstants.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            File classDir = new File(classLocation).getParentFile();
+            
+            // Load the properties file from the same directory
+            File propertiesFile = new File(classDir, "aab.properties");
+
+            if (propertiesFile.exists()) {
+                try (FileInputStream input = new FileInputStream(propertiesFile)) {
+                    properties.load(input);
+                    schema = properties.getProperty("dbSchema");
+                }
+            } else {
+                System.out.println("aab.properties file not found.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return schema;
+    }
+
+    
+private void writeToPropertiesFile(String value) throws IOException {
+        // Get the directory where this class is located
+        String classLocation = StartupListener.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        File classDir = new File(classLocation).getParentFile();
+
+        // Define the properties file in the same directory
+        File propertiesFile = new File(classDir, "aab.properties");
+
+        // Check if the file exists, if not, create it
+        if (!propertiesFile.exists()) {
+            propertiesFile.createNewFile();
+            System.out.println("File created: " + propertiesFile.getAbsolutePath());
+        } else {
+            System.out.println("File exists, will overwrite: " + propertiesFile.getAbsolutePath());
+        }
+
+        // Write the dbSchema value to the properties file
+        Properties properties = new Properties();
+        properties.setProperty("dbSchema", value);
+
+        try (FileOutputStream out = new FileOutputStream(propertiesFile)) {
+            properties.store(out, "DB Schema Value");
+        }
+    }
