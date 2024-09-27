@@ -1,0 +1,55 @@
+package com.yourpackage;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
+import javax.sql.DataSource;
+
+@WebListener
+public class StartupListener implements ServletContextListener {
+    private static final int MAX_RETRIES = 10; // Maximum number of retries
+    private static final int RETRY_DELAY = 5000; // Delay between retries in milliseconds
+
+    @Override
+    public void contextInitialized(ServletContextEvent sce) {
+        boolean dataSourceAvailable = false;
+
+        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
+                // Lookup your DataSource
+                InitialContext ctx = new InitialContext();
+                DataSource dataSource = (DataSource) ctx.lookup("jdbc/YourDataSource"); // Replace with your JNDI name
+
+                // If dataSource is available
+                if (dataSource != null) {
+                    dataSourceAvailable = true;
+                    System.out.println("DataSource is available, executing startup logic...");
+                    YourClass yourClassInstance = new YourClass(dataSource);
+                    yourClassInstance.execute();
+                    break; // Exit the loop if successful
+                }
+            } catch (NamingException e) {
+                System.out.println("Attempt " + attempt + " - DataSource not available: " + e.getMessage());
+            }
+
+            // Wait before retrying
+            try {
+                Thread.sleep(RETRY_DELAY);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); // Restore interrupted status
+                break; // Exit the loop if interrupted
+            }
+        }
+
+        if (!dataSourceAvailable) {
+            System.out.println("DataSource not available after maximum retries. Startup logic not executed.");
+        }
+    }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent sce) {
+        // Cleanup code (if needed)
+    }
+}
