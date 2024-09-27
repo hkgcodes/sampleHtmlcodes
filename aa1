@@ -1,0 +1,6 @@
+<managedExecutorService jndiName="concurrent/MyExecutor" corePoolSize="2" />
+<scheduledExecutorService id="myScheduler" jndiName="concurrent/MyScheduledExecutor">
+    <schedule one-time="true">
+        <task className="com.example.listener.StartupTask" />
+    </schedule>
+</scheduledExecutorService>
