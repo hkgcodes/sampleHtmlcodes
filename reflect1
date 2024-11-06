@@ -1,0 +1,63 @@
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.HashMap;
+import java.util.Map;
+
+public class JsonResponseGenerator {
+
+    public static String generateCustomJson(Combi combi) throws Exception {
+        // Create an ObjectMapper instance
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        // Convert the Combi object into a Map
+        Map<String, Object> combiMap = objectMapper.convertValue(combi, Map.class);
+
+        // Create a HashMap with variable-to-display name mapping
+        Map<String, String> fieldDisplayNameMap = new HashMap<>();
+        fieldDisplayNameMap.put("subname", "Subject Name");
+        fieldDisplayNameMap.put("subid", "Subject ID");
+        fieldDisplayNameMap.put("subhead", "Subject Head");
+        fieldDisplayNameMap.put("tname", "Teacher Name");
+        fieldDisplayNameMap.put("tage", "Teacher Age");
+        fieldDisplayNameMap.put("texp", "Teaching Experience");
+        fieldDisplayNameMap.put("sportname", "Sport Name");
+        fieldDisplayNameMap.put("sportid", "Sport ID");
+        fieldDisplayNameMap.put("sporthead", "Sport Head");
+
+        // Create an ObjectNode for building the custom JSON response
+        ObjectNode customJson = objectMapper.createObjectNode();
+
+        // Iterate through the original combiMap and add entries with custom field names
+        for (Map.Entry<String, Object> entry : combiMap.entrySet()) {
+            String originalFieldName = entry.getKey();
+            Object value = entry.getValue();
+            String customFieldName = fieldDisplayNameMap.getOrDefault(originalFieldName, originalFieldName);
+            customJson.putPOJO(customFieldName, value);
+        }
+
+        // Convert the ObjectNode to a JSON string
+        return objectMapper.writeValueAsString(customJson);
+    }
+
+    public static void main(String[] args) {
+        try {
+            // Create a sample Combi object
+            Combi combi = new Combi();
+            combi.setSubname("Math");
+            combi.setSubid("S01");
+            combi.setSubhead("Algebra");
+            combi.setTname("Mr. Smith");
+            combi.setTage(40);
+            combi.setTexp("10 years");
+            combi.setSportname("Basketball");
+            combi.setSportid("SP01");
+            combi.setSporthead("Coach A");
+
+            // Generate and print the custom JSON response
+            String jsonResponse = generateCustomJson(combi);
+            System.out.println(jsonResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
