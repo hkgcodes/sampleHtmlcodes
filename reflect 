@@ -1,0 +1,230 @@
+import java.lang.reflect.Field;
+
+class Subjects {
+    private String subname;
+    private String subid;
+    private String subhead;
+
+    // Getters and setters
+    public String getSubname() {
+        return subname;
+    }
+
+    public void setSubname(String subname) {
+        this.subname = subname;
+    }
+
+    public String getSubid() {
+        return subid;
+    }
+
+    public void setSubid(String subid) {
+        this.subid = subid;
+    }
+
+    public String getSubhead() {
+        return subhead;
+    }
+
+    public void setSubhead(String subhead) {
+        this.subhead = subhead;
+    }
+}
+
+class Teachers {
+    private String tname;
+    private int tage;
+    private String texp;
+
+    // Getters and setters
+    public String getTname() {
+        return tname;
+    }
+
+    public void setTname(String tname) {
+        this.tname = tname;
+    }
+
+    public int getTage() {
+        return tage;
+    }
+
+    public void setTage(int tage) {
+        this.tage = tage;
+    }
+
+    public String getTexp() {
+        return texp;
+    }
+
+    public void setTexp(String texp) {
+        this.texp = texp;
+    }
+}
+
+class Sports {
+    private String sportname;
+    private String sportid;
+    private String sporthead;
+
+    // Getters and setters
+    public String getSportname() {
+        return sportname;
+    }
+
+    public void setSportname(String sportname) {
+        this.sportname = sportname;
+    }
+
+    public String getSportid() {
+        return sportid;
+    }
+
+    public void setSportid(String sportid) {
+        this.sportid = sportid;
+    }
+
+    public String getSporthead() {
+        return sporthead;
+    }
+
+    public void setSporthead(String sporthead) {
+        this.sporthead = sporthead;
+    }
+}
+
+class Combi {
+    private String subname;
+    private String subid;
+    private String subhead;
+    private String tname;
+    private int tage;
+    private String texp;
+    private String sportname;
+    private String sportid;
+    private String sporthead;
+
+    // Getters and setters
+    public String getSubname() {
+        return subname;
+    }
+
+    public void setSubname(String subname) {
+        this.subname = subname;
+    }
+
+    public String getSubid() {
+        return subid;
+    }
+
+    public void setSubid(String subid) {
+        this.subid = subid;
+    }
+
+    public String getSubhead() {
+        return subhead;
+    }
+
+    public void setSubhead(String subhead) {
+        this.subhead = subhead;
+    }
+
+    public String getTname() {
+        return tname;
+    }
+
+    public void setTname(String tname) {
+        this.tname = tname;
+    }
+
+    public int getTage() {
+        return tage;
+    }
+
+    public void setTage(int tage) {
+        this.tage = tage;
+    }
+
+    public String getTexp() {
+        return texp;
+    }
+
+    public void setTexp(String texp) {
+        this.texp = texp;
+    }
+
+    public String getSportname() {
+        return sportname;
+    }
+
+    public void setSportname(String sportname) {
+        this.sportname = sportname;
+    }
+
+    public String getSportid() {
+        return sportid;
+    }
+
+    public void setSportid(String sportid) {
+        this.sportid = sportid;
+    }
+
+    public String getSporthead() {
+        return sporthead;
+    }
+
+    public void setSporthead(String sporthead) {
+        this.sporthead = sporthead;
+    }
+}
+
+public class ModelMapper {
+    
+    public static Combi mapToCombi(Subjects subject, Teachers teacher, Sports sport) throws IllegalAccessException {
+        Combi combi = new Combi();
+        
+        // Mapping using reflection
+        mapFields(subject, combi);
+        mapFields(teacher, combi);
+        mapFields(sport, combi);
+        
+        return combi;
+    }
+
+    // Utility method to map fields from source to target using reflection
+    private static void mapFields(Object source, Object target) throws IllegalAccessException {
+        for (Field sourceField : source.getClass().getDeclaredFields()) {
+            sourceField.setAccessible(true);
+            for (Field targetField : target.getClass().getDeclaredFields()) {
+                targetField.setAccessible(true);
+                if (sourceField.getName().equals(targetField.getName())) {
+                    targetField.set(target, sourceField.get(source));
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args) throws IllegalAccessException {
+        // Create sample objects
+        Subjects subject = new Subjects();
+        subject.setSubname("Math");
+        subject.setSubid("S01");
+        subject.setSubhead("Algebra");
+
+        Teachers teacher = new Teachers();
+        teacher.setTname("Mr. Smith");
+        teacher.setTage(40);
+        teacher.setTexp("10 years");
+
+        Sports sport = new Sports();
+        sport.setSportname("Basketball");
+        sport.setSportid("SP01");
+        sport.setSporthead("Coach A");
+
+        // Map fields to Combi
+        Combi combi = mapToCombi(subject, teacher, sport);
+
+        // Print mapped values
+        System.out.println("Combi: " + combi.getSubname() + ", " + combi.getTname() + ", " + combi.getSportname());
+    }
+}
