@@ -1,0 +1,75 @@
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
+
+public class JsonResponseGenerator {
+
+    public static String generateCustomJson(Combi combi) {
+        // HashMap with variable-to-display name mapping
+        Map<String, String> fieldDisplayNameMap = new HashMap<>();
+        fieldDisplayNameMap.put("subname", "Subject Name");
+        fieldDisplayNameMap.put("subid", "Subject ID");
+        fieldDisplayNameMap.put("subhead", "Subject Head");
+        fieldDisplayNameMap.put("tname", "Teacher Name");
+        fieldDisplayNameMap.put("tage", "Teacher Age");
+        fieldDisplayNameMap.put("texp", "Teaching Experience");
+        fieldDisplayNameMap.put("sportname", "Sport Name");
+        fieldDisplayNameMap.put("sportid", "Sport ID");
+        fieldDisplayNameMap.put("sporthead", "Sport Head");
+
+        // Build the JSON-like string
+        StringBuilder jsonBuilder = new StringBuilder();
+        jsonBuilder.append("{");
+
+        // Use reflection to iterate over all fields in the Combi class
+        Field[] fields = Combi.class.getDeclaredFields();
+        for (int i = 0; i < fields.length; i++) {
+            Field field = fields[i];
+            field.setAccessible(true); // Allow access to private fields
+            try {
+                // Get the field name and value
+                String fieldName = field.getName();
+                Object fieldValue = field.get(combi);
+
+                // Get the custom field name from the map
+                String customFieldName = fieldDisplayNameMap.getOrDefault(fieldName, fieldName);
+
+                // Append to JSON string
+                jsonBuilder.append("\"").append(customFieldName).append("\": ");
+                if (fieldValue instanceof String) {
+                    jsonBuilder.append("\"").append(fieldValue).append("\"");
+                } else {
+                    jsonBuilder.append(fieldValue);
+                }
+
+                // Add a comma if this is not the last field
+                if (i < fields.length - 1) {
+                    jsonBuilder.append(", ");
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        jsonBuilder.append("}");
+        return jsonBuilder.toString();
+    }
+
+    public static void main(String[] args) {
+        // Create a sample Combi object
+        Combi combi = new Combi();
+        combi.setSubname("Math");
+        combi.setSubid("S01");
+        combi.setSubhead("Algebra");
+        combi.setTname("Mr. Smith");
+        combi.setTage(40);
+        combi.setTexp("10 years");
+        combi.setSportname("Basketball");
+        combi.setSportid("SP01");
+        combi.setSporthead("Coach A");
+
+        // Generate and print the custom JSON response
+        String jsonResponse = generateCustomJson(combi);
+        System.out.println(jsonResponse);
+    }
+}
