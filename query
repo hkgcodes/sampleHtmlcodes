@@ -1,0 +1,21 @@
+WITH RankedProperties AS (
+    SELECT
+        Student_id,
+        Property_name,
+        Property_value,
+        ROW_NUMBER() OVER (PARTITION BY Student_id ORDER BY Property_name) AS RowNum
+    FROM student_properties
+)
+SELECT 
+    Student_id,
+    MAX(CASE WHEN RowNum = 1 THEN Property_name END) AS PropertyName_1,
+    MAX(CASE WHEN RowNum = 1 THEN Property_value END) AS PropertyValue_1,
+    MAX(CASE WHEN RowNum = 2 THEN Property_name END) AS PropertyName_2,
+    MAX(CASE WHEN RowNum = 2 THEN Property_value END) AS PropertyValue_2,
+    MAX(CASE WHEN RowNum = 3 THEN Property_name END) AS PropertyName_3,
+    MAX(CASE WHEN RowNum = 3 THEN Property_value END) AS PropertyValue_3,
+    -- Continue up to 14 as required
+    MAX(CASE WHEN RowNum = 14 THEN Property_name END) AS PropertyName_14,
+    MAX(CASE WHEN RowNum = 14 THEN Property_value END) AS PropertyValue_14
+FROM RankedProperties
+GROUP BY Student_id;
