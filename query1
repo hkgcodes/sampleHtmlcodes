@@ -1,0 +1,18 @@
+BEGIN
+   DECLARE sqlQuery VARCHAR(10000);
+   
+   -- Generate the dynamic SQL query
+   SET sqlQuery = 'SELECT Student_id';
+
+   -- Loop through each unique Property_name and add it as a column
+   FOR row AS
+       SELECT DISTINCT Property_name FROM student_properties
+   DO
+       SET sqlQuery = sqlQuery || ', MAX(CASE WHEN Property_name = ''' || row.Property_name || ''' THEN Property_value END) AS ' || row.Property_name;
+   END FOR;
+
+   SET sqlQuery = sqlQuery || ' FROM student_properties GROUP BY Student_id';
+
+   -- Execute the dynamic SQL
+   EXECUTE IMMEDIATE sqlQuery;
+END;
