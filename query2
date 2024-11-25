@@ -1,0 +1,30 @@
+DECLARE @sqlQuery NVARCHAR(MAX);
+DECLARE @columnName NVARCHAR(255);
+
+-- Initialize the dynamic SQL
+SET @sqlQuery = 'SELECT Student_id';
+
+-- Cursor to iterate over unique Property_name values
+DECLARE propertyCursor CURSOR FOR
+    SELECT DISTINCT Property_name FROM student_properties;
+
+OPEN propertyCursor;
+
+FETCH NEXT FROM propertyCursor INTO @columnName;
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    -- Add each Property_name as a column in the query
+    SET @sqlQuery = @sqlQuery + ', MAX(CASE WHEN Property_name = ''' + @columnName + ''' THEN Property_value END) AS [' + @columnName + ']';
+
+    FETCH NEXT FROM propertyCursor INTO @columnName;
+END;
+
+-- Close and deallocate the cursor
+CLOSE propertyCursor;
+DEALLOCATE propertyCursor;
+
+-- Finalize the query
+SET @sqlQuery = @sqlQuery + ' FROM student_properties GROUP BY Student_id';
+
+-- Execute the dynamic SQL
+EXEC sp_executesql @sqlQuery;
