@@ -1,0 +1,96 @@
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.sql.*;
+
+public class DynamicQueryToExcel {
+    private static final String DB_URL = "jdbc:sqlserver://localhost:1433;databaseName=yourDatabaseName";
+    private static final String DB_USER = "yourUsername";
+    private static final String DB_PASSWORD = "yourPassword";
+    private static final String EXCEL_FILE_PATH = "StudentProperties.xlsx";
+
+    public static void main(String[] args) {
+        String dynamicQuery = buildDynamicSQLQuery();
+        if (dynamicQuery == null) {
+            System.out.println("Failed to build dynamic query.");
+            return;
+        }
+
+        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement statement = connection.prepareStatement(dynamicQuery);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            Workbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Student Properties");
+
+            // Write headers
+            writeHeaders(resultSet, sheet);
+
+            // Write data rows
+            writeDataRows(resultSet, sheet);
+
+            // Save to Excel file
+            try (FileOutputStream fileOut = new FileOutputStream(EXCEL_FILE_PATH)) {
+                workbook.write(fileOut);
+            }
+            workbook.close();
+
+            System.out.println("Data saved to Excel file: " + EXCEL_FILE_PATH);
+
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String buildDynamicSQLQuery() {
+        StringBuilder sqlQuery = new StringBuilder("SELECT Student_id");
+        String propertyQuery = "SELECT DISTINCT Property_name FROM student_properties";
+
+        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement statement = connection.prepareStatement(propertyQuery);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            while (resultSet.next()) {
+                String propertyName = resultSet.getString("Property_name");
+                sqlQuery.append(", MAX(CASE WHEN Property_name = '")
+                        .append(propertyName)
+                        .append("' THEN Property_value END) AS [")
+                        .append(propertyName)
+                        .append("]");
+            }
+
+            sqlQuery.append(" FROM student_properties GROUP BY Student_id");
+            return sqlQuery.toString();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static void writeHeaders(ResultSet resultSet, Sheet sheet) throws SQLException {
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        Row headerRow = sheet.createRow(0);
+
+        for (int i = 1; i <= metaData.getColumnCount(); i++) {
+            Cell cell = headerRow.createCell(i - 1);
+            cell.setCellValue(metaData.getColumnName(i));
+        }
+    }
+
+    private static void writeDataRows(ResultSet resultSet, Sheet sheet) throws SQLException {
+        int rowIndex = 1;
+
+        while (resultSet.next()) {
+            Row row = sheet.createRow(rowIndex++);
+            ResultSetMetaData metaData = resultSet.getMetaData();
+
+            for (int i = 1; i <= metaData.getColumnCount(); i++) {
+                Cell cell = row.createCell(i - 1);
+                cell.setCellValue(resultSet.getString(i));
+            }
+        }
+    }
+}
