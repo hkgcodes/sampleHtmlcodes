@@ -1,0 +1,2 @@
+javac -cp ".;mssql-jdbc-11.x.x.jre8.jar" DynamicQueryToCSV.java
+java -cp ".;mssql-jdbc-11.x.x.jre8.jar" DynamicQueryToCSV
