@@ -1,0 +1,20 @@
+SELECT bid
+FROM Bln
+WHERE bid NOT IN (
+    SELECT bid
+    FROM Aud
+)
+OR bid IN (
+    SELECT bid
+    FROM Aud a
+    WHERE audNo = (
+        SELECT MAX(audNo)
+        FROM Aud a2
+        WHERE a2.bid = a.bid
+    )
+    AND fvalue <> (
+        SELECT fvalue
+        FROM Term t
+        WHERE t.bid = a.bid
+    )
+);
